@@ -1,7 +1,10 @@
 // ETMCLEANING Daily Tracker - service worker
-// Cache-first for the app shell so it works offline + installs as a PWA.
+// Strategy:
+//   - HTML / navigations  -> network-first (always get latest UI when online)
+//   - Other assets        -> stale-while-revalidate (fast + auto-updating)
+// Bump CACHE_NAME on every shipping change so old caches are purged.
 
-const CACHE_NAME = "etm-tracker-v1";
+const CACHE_NAME = "etm-tracker-v3";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -13,7 +16,6 @@ const APP_SHELL = [
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) =>
-      // Use { cache: "reload" } so fresh copies are pulled when the SW updates.
       Promise.all(
         APP_SHELL.map((url) =>
           cache
@@ -43,35 +45,48 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
 
-  // For navigations, prefer cache-first then network (offline-friendly).
+  // 1) Navigations: network-first. Falls back to cached index.html offline.
   if (req.mode === "navigate") {
     event.respondWith(
-      caches.match("./index.html").then(
-        (cached) =>
-          cached ||
-          fetch(req).catch(() => caches.match("./index.html"))
-      )
+      fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((c) => c.put("./index.html", copy));
+          return res;
+        })
+        .catch(() => caches.match("./index.html"))
     );
     return;
   }
 
+  // 2) Same-origin GETs: stale-while-revalidate.
+  const url = new URL(req.url);
+  if (url.origin === self.location.origin) {
+    event.respondWith(
+      caches.match(req).then((cached) => {
+        const networkFetch = fetch(req)
+          .then((res) => {
+            if (res && res.status === 200 && res.type === "basic") {
+              const copy = res.clone();
+              caches.open(CACHE_NAME).then((c) => c.put(req, copy));
+            }
+            return res;
+          })
+          .catch(() => cached);
+        return cached || networkFetch;
+      })
+    );
+    return;
+  }
+
+  // 3) Cross-origin (e.g. Google Fonts): cache-first opportunistically.
   event.respondWith(
-    caches.match(req).then((cached) => {
-      if (cached) return cached;
-      return fetch(req)
-        .then((res) => {
-          // Cache same-origin GETs opportunistically.
-          if (
-            res &&
-            res.status === 200 &&
-            res.type === "basic"
-          ) {
-            const copy = res.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
-          }
-          return res;
-        })
-        .catch(() => cached);
-    })
+    caches.match(req).then((cached) => cached || fetch(req).catch(() => cached))
   );
+});
+
+// Allow the page to ask the SW to skip waiting (used right after install
+// of a new version, so the user doesn't have to close and reopen the app).
+self.addEventListener("message", (event) => {
+  if (event.data === "SKIP_WAITING") self.skipWaiting();
 });

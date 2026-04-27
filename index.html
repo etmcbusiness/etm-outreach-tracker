@@ -952,7 +952,7 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 820px) {
       body {
         padding: 12px;
         padding-top: max(12px, env(safe-area-inset-top));
@@ -2490,6 +2490,9 @@
     // PWA: register the service worker so the app installs and
     // runs offline. Only registers when served over http(s) or
     // localhost - file:// URLs silently skip this.
+    // When a new SW is detected, we tell it to skip waiting and
+    // reload once it activates so the user always gets the latest
+    // version of the app on next launch.
     // ==========================================================
     if ("serviceWorker" in navigator) {
       const isFile = location.protocol === "file:";
@@ -2497,7 +2500,32 @@
         window.addEventListener("load", () => {
           navigator.serviceWorker
             .register("sw.js")
+            .then((reg) => {
+              if (reg.waiting) {
+                reg.waiting.postMessage("SKIP_WAITING");
+              }
+              reg.addEventListener("updatefound", () => {
+                const newWorker = reg.installing;
+                if (!newWorker) return;
+                newWorker.addEventListener("statechange", () => {
+                  if (
+                    newWorker.state === "installed" &&
+                    navigator.serviceWorker.controller
+                  ) {
+                    newWorker.postMessage("SKIP_WAITING");
+                  }
+                });
+              });
+              setInterval(() => reg.update().catch(() => {}), 60 * 60 * 1000);
+            })
             .catch((err) => console.warn("SW registration failed:", err));
+
+          let reloading = false;
+          navigator.serviceWorker.addEventListener("controllerchange", () => {
+            if (reloading) return;
+            reloading = true;
+            window.location.reload();
+          });
         });
       }
     }

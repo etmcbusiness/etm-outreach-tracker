@@ -1,0 +1,13 @@
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+*.tmp
+
+.vscode/
+.idea/
+.cursor/
+
+node_modules/
+dist/
+build/

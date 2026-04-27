@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#001a00"/>
+      <stop offset="100%" stop-color="#000800"/>
+    </radialGradient>
+    <linearGradient id="line" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0%" stop-color="#33ff33" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#33ff33" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#33ff33" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="96" ry="96" fill="url(#bg)"/>
+
+  <g opacity="0.18" fill="#000">
+    <rect x="0" y="0" width="512" height="3"/>
+    <rect x="0" y="8" width="512" height="3"/>
+    <rect x="0" y="16" width="512" height="3"/>
+    <rect x="0" y="24" width="512" height="3"/>
+    <rect x="0" y="32" width="512" height="3"/>
+    <rect x="0" y="40" width="512" height="3"/>
+    <rect x="0" y="48" width="512" height="3"/>
+    <rect x="0" y="56" width="512" height="3"/>
+    <rect x="0" y="64" width="512" height="3"/>
+    <rect x="0" y="72" width="512" height="3"/>
+    <rect x="0" y="80" width="512" height="3"/>
+    <rect x="0" y="88" width="512" height="3"/>
+    <rect x="0" y="96" width="512" height="3"/>
+    <rect x="0" y="104" width="512" height="3"/>
+    <rect x="0" y="112" width="512" height="3"/>
+    <rect x="0" y="120" width="512" height="3"/>
+    <rect x="0" y="128" width="512" height="3"/>
+    <rect x="0" y="136" width="512" height="3"/>
+    <rect x="0" y="144" width="512" height="3"/>
+    <rect x="0" y="152" width="512" height="3"/>
+    <rect x="0" y="160" width="512" height="3"/>
+    <rect x="0" y="168" width="512" height="3"/>
+    <rect x="0" y="176" width="512" height="3"/>
+    <rect x="0" y="184" width="512" height="3"/>
+    <rect x="0" y="192" width="512" height="3"/>
+    <rect x="0" y="200" width="512" height="3"/>
+    <rect x="0" y="208" width="512" height="3"/>
+    <rect x="0" y="216" width="512" height="3"/>
+    <rect x="0" y="224" width="512" height="3"/>
+    <rect x="0" y="232" width="512" height="3"/>
+    <rect x="0" y="240" width="512" height="3"/>
+    <rect x="0" y="248" width="512" height="3"/>
+    <rect x="0" y="256" width="512" height="3"/>
+    <rect x="0" y="264" width="512" height="3"/>
+    <rect x="0" y="272" width="512" height="3"/>
+    <rect x="0" y="280" width="512" height="3"/>
+    <rect x="0" y="288" width="512" height="3"/>
+    <rect x="0" y="296" width="512" height="3"/>
+    <rect x="0" y="304" width="512" height="3"/>
+    <rect x="0" y="312" width="512" height="3"/>
+    <rect x="0" y="320" width="512" height="3"/>
+    <rect x="0" y="328" width="512" height="3"/>
+    <rect x="0" y="336" width="512" height="3"/>
+    <rect x="0" y="344" width="512" height="3"/>
+    <rect x="0" y="352" width="512" height="3"/>
+    <rect x="0" y="360" width="512" height="3"/>
+    <rect x="0" y="368" width="512" height="3"/>
+    <rect x="0" y="376" width="512" height="3"/>
+    <rect x="0" y="384" width="512" height="3"/>
+    <rect x="0" y="392" width="512" height="3"/>
+    <rect x="0" y="400" width="512" height="3"/>
+    <rect x="0" y="408" width="512" height="3"/>
+    <rect x="0" y="416" width="512" height="3"/>
+    <rect x="0" y="424" width="512" height="3"/>
+    <rect x="0" y="432" width="512" height="3"/>
+    <rect x="0" y="440" width="512" height="3"/>
+    <rect x="0" y="448" width="512" height="3"/>
+    <rect x="0" y="456" width="512" height="3"/>
+    <rect x="0" y="464" width="512" height="3"/>
+    <rect x="0" y="472" width="512" height="3"/>
+    <rect x="0" y="480" width="512" height="3"/>
+    <rect x="0" y="488" width="512" height="3"/>
+    <rect x="0" y="496" width="512" height="3"/>
+    <rect x="0" y="504" width="512" height="3"/>
+  </g>
+
+  <rect x="40" y="170" width="432" height="3" fill="url(#line)"/>
+  <rect x="40" y="345" width="432" height="3" fill="url(#line)"/>
+
+  <g filter="url(#glow)" font-family="Courier New, monospace" font-weight="bold" text-anchor="middle" fill="#33ff33">
+    <text x="256" y="280" font-size="160" letter-spacing="14">ETM</text>
+    <text x="256" y="330" font-size="38" letter-spacing="10">TRACKER</text>
+  </g>
+</svg>

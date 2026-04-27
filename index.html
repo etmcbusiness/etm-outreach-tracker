@@ -1,0 +1,2443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover, user-scalable=no"
+  />
+  <title>ETMCLEANING :: Daily Tracker</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#000800" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="application-name" content="ETM Tracker" />
+
+  <!-- iOS home-screen / standalone-app behavior -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ETM Tracker" />
+  <meta name="format-detection" content="telephone=no" />
+
+  <!-- Icons (drop your image in as icon.png to override the placeholder) -->
+  <link rel="icon" type="image/svg+xml" href="icon.svg" />
+  <link rel="icon" type="image/png" href="icon.png" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icon.png" />
+  <link rel="mask-icon" href="icon.svg" color="#33ff33" />
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap");
+
+    :root {
+      --green: #33ff33;
+      --green-dim: #1a8c1a;
+      --green-glow: #33ff3380;
+      --bg: #000800;
+      --scanline: rgba(0, 0, 0, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--green);
+      font-family: "Share Tech Mono", "VT323", "Courier New", monospace;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    body {
+      padding: 24px;
+      text-shadow:
+        0 0 1px var(--green),
+        0 0 3px var(--green-glow);
+      animation: flicker 3s infinite;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0, 0, 0, 0.18) 4px,
+        rgba(0, 0, 0, 0.18) 4px
+      );
+      pointer-events: none;
+      z-index: 5;
+      opacity: 0.7;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(
+        ellipse at center,
+        transparent 60%,
+        rgba(0, 0, 0, 0.5) 100%
+      );
+      pointer-events: none;
+      z-index: 6;
+    }
+
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      96% { opacity: 1; }
+      97% { opacity: 0.85; }
+      98% { opacity: 1; }
+      99% { opacity: 0.92; }
+    }
+
+    .crt {
+      border: 2px solid var(--green);
+      padding: 12px 18px;
+      box-shadow:
+        0 0 8px var(--green-glow),
+        inset 0 0 8px var(--green-glow);
+    }
+
+    /* ===== Page toggle button (top left) ===== */
+    .page-toggle {
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      z-index: 30;
+      padding: 12px 22px;
+      font-size: 1.1rem;
+      letter-spacing: 3px;
+      box-shadow:
+        0 0 8px var(--green-glow),
+        inset 0 0 8px var(--green-glow);
+    }
+
+    .page-toggle::before {
+      content: "> ";
+    }
+
+    /* ===== Top-right stack: timer + daily totals ===== */
+    .top-right-stack {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 240px;
+    }
+
+    .timer-container {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+      min-width: 240px;
+    }
+
+    .daily-totals {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 12px 16px;
+    }
+
+    .daily-label {
+      font-size: 0.95rem;
+      letter-spacing: 2px;
+      text-align: center;
+      color: var(--green-dim);
+      border-bottom: 1px dashed var(--green-dim);
+      padding-bottom: 4px;
+      margin-bottom: 4px;
+    }
+
+    .daily-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 1rem;
+      letter-spacing: 1.5px;
+      padding: 3px 2px;
+      gap: 14px;
+    }
+
+    .daily-row .name {
+      color: var(--green-dim);
+      text-shadow: 0 0 2px var(--green-dim);
+    }
+
+    .daily-row .daily-num {
+      font-weight: bold;
+      font-size: 1.5rem;
+      color: var(--green);
+      text-shadow:
+        0 0 1px var(--green),
+        0 0 4px var(--green-glow);
+      min-width: 36px;
+      text-align: right;
+    }
+
+    .daily-row.active .name {
+      color: var(--green);
+      text-shadow:
+        0 0 1px var(--green),
+        0 0 4px var(--green-glow);
+    }
+
+    .daily-row.active::before {
+      content: ">";
+      color: var(--green);
+      margin-right: -10px;
+      text-shadow:
+        0 0 1px var(--green),
+        0 0 4px var(--green-glow);
+    }
+
+    .timer-label {
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      text-align: center;
+      border-bottom: 1px dashed var(--green-dim);
+      padding-bottom: 4px;
+    }
+
+    .timer-display {
+      font-size: 2.4rem;
+      font-weight: bold;
+      letter-spacing: 3px;
+      text-align: center;
+      text-shadow:
+        0 0 1px var(--green),
+        0 0 4px var(--green-glow);
+    }
+
+    .timer-display .ms {
+      font-size: 1.4rem;
+      letter-spacing: 2px;
+      color: var(--green-dim);
+      text-shadow: 0 0 2px var(--green-dim);
+      margin-left: 4px;
+      vertical-align: 4px;
+    }
+
+    .timer-buttons,
+    .tally-buttons {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .tally-pm {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+    }
+
+    button {
+      background: transparent;
+      color: var(--green);
+      border: 2px solid var(--green);
+      padding: 6px 14px;
+      font-family: inherit;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      text-transform: uppercase;
+      text-shadow: inherit;
+      transition: background 0.08s, color 0.08s, box-shadow 0.08s;
+    }
+
+    button:hover {
+      background: var(--green);
+      color: var(--bg);
+      text-shadow: none;
+      box-shadow: 0 0 12px var(--green-glow);
+    }
+
+    button:active {
+      background: var(--green-dim);
+      color: var(--bg);
+    }
+
+    .main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 28px;
+      padding-top: 40px;
+    }
+
+    .header {
+      text-align: center;
+      letter-spacing: 3px;
+    }
+
+    .header .top-line,
+    .header .bot-line {
+      height: 2px;
+      width: 520px;
+      max-width: 90vw;
+      margin: 8px auto;
+      background: linear-gradient(
+        to right,
+        transparent 0%,
+        var(--green) 25%,
+        var(--green) 75%,
+        transparent 100%
+      );
+      box-shadow: 0 0 6px var(--green-glow);
+      border: none;
+    }
+
+    .header .bot-line {
+      margin-bottom: 30px;
+    }
+
+    /* ===== Tracker tabs (switch between Email / DM / Video Upload) ===== */
+    .tracker-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: -10px 0 24px;
+    }
+
+    .tracker-tab {
+      padding: 8px 18px;
+      font-size: 0.95rem;
+      letter-spacing: 2px;
+      border: 2px solid var(--green-dim);
+      color: var(--green-dim);
+      box-shadow: none;
+      text-shadow: 0 0 2px var(--green-dim);
+    }
+
+    .tracker-tab:hover {
+      border-color: var(--green);
+      color: var(--bg);
+      background: var(--green);
+      text-shadow: none;
+    }
+
+    .tracker-tab.active {
+      border-color: var(--green);
+      color: var(--bg);
+      background: var(--green);
+      text-shadow: none;
+      box-shadow: 0 0 12px var(--green-glow);
+    }
+
+    body.analytics-mode .tracker-tabs {
+      margin: -4px 0 14px;
+    }
+
+    body.analytics-mode .tracker-tab {
+      padding: 6px 14px;
+      font-size: 0.85rem;
+    }
+
+    h1 {
+      font-size: 3rem;
+      letter-spacing: 8px;
+      font-weight: bold;
+      margin: 4px 0;
+      text-shadow:
+        0 0 1px var(--green),
+        0 0 4px var(--green-glow);
+    }
+
+    .header .subtitle {
+      font-size: 1.4rem;
+      letter-spacing: 4px;
+      color: var(--green);
+      margin-bottom: 30px;
+    }
+
+    .blink {
+      animation: blink 1s steps(2, start) infinite;
+    }
+
+    @keyframes blink {
+      to { visibility: hidden; }
+    }
+
+    /* ===== Tracker view ===== */
+    .tally-container {
+      padding: 70px 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 50px;
+      min-width: 760px;
+    }
+
+    .tally-label {
+      font-size: 1.6rem;
+      letter-spacing: 6px;
+      color: var(--green-dim);
+      text-shadow: 0 0 2px var(--green-dim);
+    }
+
+    .tally-count {
+      font-size: 14rem;
+      letter-spacing: 10px;
+      line-height: 1;
+      text-align: center;
+      min-width: 480px;
+      font-weight: bold;
+      text-shadow:
+        0 0 2px var(--green),
+        0 0 6px var(--green-glow);
+      animation: crt-blink 1.59s steps(2, start) infinite;
+    }
+
+    @keyframes crt-blink {
+      0%, 55% { opacity: 1; }
+      56%, 100% { opacity: 0.15; }
+    }
+
+    .tally-pm button {
+      width: 160px;
+      height: 160px;
+      font-size: 5rem;
+      padding: 0;
+      line-height: 1;
+    }
+
+    #resetTallyBtn {
+      padding: 14px 36px;
+      font-size: 1.3rem;
+      letter-spacing: 3px;
+      margin-top: 10px;
+    }
+
+    .email-select-wrap {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 16px 28px;
+    }
+
+    .email-select-label {
+      font-size: 1.1rem;
+      letter-spacing: 3px;
+      color: var(--green-dim);
+      text-shadow: 0 0 2px var(--green-dim);
+    }
+
+    .email-select {
+      background: var(--bg);
+      color: var(--green);
+      border: 2px solid var(--green);
+      font-family: inherit;
+      font-size: 1.05rem;
+      letter-spacing: 1px;
+      padding: 8px 36px 8px 14px;
+      cursor: pointer;
+      text-shadow: inherit;
+      box-shadow: inset 0 0 6px var(--green-glow);
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--green) 50%),
+        linear-gradient(135deg, var(--green) 50%, transparent 50%);
+      background-position:
+        calc(100% - 18px) 55%,
+        calc(100% - 12px) 55%;
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+      min-width: 280px;
+    }
+
+    .email-select:focus {
+      outline: none;
+      box-shadow:
+        0 0 10px var(--green-glow),
+        inset 0 0 6px var(--green-glow);
+    }
+
+    .email-select option {
+      background: var(--bg);
+      color: var(--green);
+    }
+
+    /* ===== Analytics view ===== */
+    .view {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .view.hidden {
+      display: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .analytics-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .analytics-bottom {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 16px;
+      width: 100%;
+    }
+
+    /* Compact layout when viewing analytics so it fits without scroll */
+    body.analytics-mode .main {
+      padding-top: 16px;
+      gap: 12px;
+      min-height: 100vh;
+      justify-content: flex-start;
+    }
+
+    body.analytics-mode .header h1 {
+      font-size: 1.8rem;
+      letter-spacing: 6px;
+      margin: 0;
+    }
+
+    body.analytics-mode .header .subtitle {
+      font-size: 1rem;
+      letter-spacing: 3px;
+      margin-bottom: 10px;
+    }
+
+    body.analytics-mode .header .bot-line {
+      margin: 4px auto 14px;
+      width: 380px;
+    }
+
+    body.analytics-mode .timer-container {
+      display: none;
+    }
+
+    body.analytics-mode .top-right-stack {
+      top: 16px;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      width: 100%;
+    }
+
+    .stat-card {
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      color: var(--green-dim);
+      text-shadow: 0 0 2px var(--green-dim);
+    }
+
+    .stat-value {
+      font-size: 2.4rem;
+      font-weight: bold;
+      letter-spacing: 3px;
+      line-height: 1;
+      text-shadow:
+        0 0 1px var(--green),
+        0 0 4px var(--green-glow);
+    }
+
+    .session-table-wrap {
+      width: 100%;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .session-table-title {
+      font-size: 1rem;
+      letter-spacing: 3px;
+      color: var(--green-dim);
+      border-bottom: 1px dashed var(--green-dim);
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+      flex: 0 0 auto;
+    }
+
+    .table-scroll {
+      overflow-y: auto;
+      flex: 1 1 auto;
+      max-height: 280px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--green-dim) transparent;
+    }
+
+    .table-scroll::-webkit-scrollbar {
+      width: 8px;
+    }
+    .table-scroll::-webkit-scrollbar-thumb {
+      background: var(--green-dim);
+    }
+    .table-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      letter-spacing: 1px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 7px 10px;
+      border-bottom: 1px dashed rgba(51, 255, 51, 0.25);
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+    }
+
+    th {
+      color: var(--green-dim);
+      letter-spacing: 2px;
+      font-weight: normal;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--green-dim);
+      padding: 30px 12px;
+      letter-spacing: 2px;
+    }
+
+    .analytics-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .storage-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border: 1px dashed var(--green-dim);
+      color: var(--green-dim);
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      max-width: 420px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .storage-status.connected {
+      color: var(--green);
+      border-color: var(--green);
+      border-style: solid;
+      box-shadow: 0 0 6px var(--green-glow);
+    }
+
+    .storage-status.warn {
+      color: #ffaa33;
+      border-color: #ffaa33;
+    }
+
+    .storage-status .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 4px currentColor;
+      flex-shrink: 0;
+    }
+
+    .danger {
+      border-color: #ff5555;
+      color: #ff5555;
+    }
+
+    .danger:hover {
+      background: #ff5555;
+      color: var(--bg);
+      box-shadow: 0 0 12px rgba(255, 85, 85, 0.5);
+    }
+
+    /* ===== Chart ===== */
+    .chart-wrap {
+      width: 100%;
+      padding: 14px 18px 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-bottom: 1px dashed var(--green-dim);
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+    }
+
+    .chart-title {
+      font-size: 1rem;
+      letter-spacing: 3px;
+      color: var(--green-dim);
+    }
+
+    .chart-legend {
+      display: flex;
+      gap: 14px;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legend-swatch {
+      display: inline-block;
+      width: 22px;
+      height: 3px;
+      box-shadow: 0 0 4px currentColor;
+    }
+
+    .legend-emails { color: var(--green); }
+    .legend-time { color: #ffaa33; text-shadow: 0 0 2px #ffaa3380; }
+
+    .chart-svg {
+      width: 100%;
+      height: 260px;
+      display: block;
+    }
+
+    .chart-empty {
+      text-align: center;
+      color: var(--green-dim);
+      padding: 30px 12px;
+      letter-spacing: 2px;
+    }
+
+    .chart-svg .grid-line {
+      stroke: var(--green-dim);
+      stroke-width: 1;
+      stroke-dasharray: 3 4;
+      opacity: 0.45;
+    }
+
+    .chart-svg .axis-line {
+      stroke: var(--green-dim);
+      stroke-width: 1.2;
+    }
+
+    .chart-svg .axis-label {
+      fill: var(--green-dim);
+      font-family: "Share Tech Mono", monospace;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    .chart-svg .axis-label.right {
+      fill: #ffaa33;
+    }
+
+    .chart-svg .x-label {
+      fill: var(--green-dim);
+      font-family: "Share Tech Mono", monospace;
+      font-size: 11px;
+    }
+
+    .chart-svg .line-emails {
+      fill: none;
+      stroke: var(--green);
+      stroke-width: 2;
+      filter: drop-shadow(0 0 3px var(--green-glow));
+    }
+
+    .chart-svg .line-time {
+      fill: none;
+      stroke: #ffaa33;
+      stroke-width: 2;
+      filter: drop-shadow(0 0 3px #ffaa3380);
+    }
+
+    .chart-svg .dot-emails {
+      fill: var(--green);
+      filter: drop-shadow(0 0 3px var(--green-glow));
+    }
+
+    .chart-svg .dot-time {
+      fill: #ffaa33;
+      filter: drop-shadow(0 0 3px #ffaa3380);
+    }
+
+    .footer {
+      position: fixed;
+      bottom: 12px;
+      left: 24px;
+      font-size: 0.95rem;
+      color: var(--green-dim);
+      text-shadow: 0 0 2px var(--green-dim);
+      letter-spacing: 2px;
+      z-index: 10;
+    }
+
+    /* ==========================================================
+       MOBILE / RESPONSIVE LAYOUT
+       Two breakpoints:
+         - <= 900px  (tablet / large phone landscape)
+         - <= 600px  (phone portrait)
+         - <= 380px  (very small phones)
+       Goals: nothing overlaps, every tap target >= 44px,
+       respects iOS notches via env(safe-area-inset-*).
+       ========================================================== */
+
+    /* Respect iOS notches at all sizes */
+    @supports (padding: max(0px)) {
+      body {
+        padding-top: max(24px, env(safe-area-inset-top));
+        padding-right: max(24px, env(safe-area-inset-right));
+        padding-bottom: max(24px, env(safe-area-inset-bottom));
+        padding-left: max(24px, env(safe-area-inset-left));
+      }
+    }
+
+    @media (max-width: 900px) {
+      body {
+        padding: 16px;
+        padding-top: max(16px, env(safe-area-inset-top));
+        padding-right: max(16px, env(safe-area-inset-right));
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
+        padding-left: max(16px, env(safe-area-inset-left));
+      }
+
+      .top-right-stack {
+        min-width: 0;
+        width: 200px;
+      }
+
+      .timer-display {
+        font-size: 1.8rem;
+      }
+
+      .timer-display .ms {
+        font-size: 1.05rem;
+      }
+
+      .main {
+        padding-top: 80px;
+      }
+
+      h1 {
+        font-size: 2.2rem;
+        letter-spacing: 5px;
+      }
+
+      .header .subtitle {
+        font-size: 1.1rem;
+        letter-spacing: 3px;
+        margin-bottom: 18px;
+      }
+
+      .header .top-line,
+      .header .bot-line {
+        width: 100%;
+        max-width: 96vw;
+      }
+
+      .header .bot-line {
+        margin-bottom: 18px;
+      }
+
+      .tally-container {
+        padding: 36px 28px;
+        gap: 32px;
+        min-width: 0;
+        width: 100%;
+        max-width: 600px;
+      }
+
+      .tally-count {
+        font-size: 9rem;
+        min-width: 0;
+        letter-spacing: 6px;
+      }
+
+      .tally-pm {
+        gap: 24px;
+      }
+
+      .tally-pm button {
+        width: 120px;
+        height: 120px;
+        font-size: 4rem;
+      }
+
+      .stat-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+      }
+
+      .stat-card {
+        padding: 10px 8px;
+      }
+
+      .stat-value {
+        font-size: 1.8rem;
+        letter-spacing: 2px;
+      }
+
+      .stat-label {
+        font-size: 0.75rem;
+        letter-spacing: 1.5px;
+      }
+
+      .analytics-bottom {
+        grid-template-columns: 1fr;
+      }
+
+      .table-scroll {
+        max-height: 220px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 12px;
+        padding-top: max(12px, env(safe-area-inset-top));
+      }
+
+      /* On phones, the fixed top bars become smaller and
+         body content gets padded out from under them. */
+      .page-toggle {
+        top: max(10px, env(safe-area-inset-top));
+        left: 10px;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        letter-spacing: 2px;
+      }
+
+      .top-right-stack {
+        top: max(10px, env(safe-area-inset-top));
+        right: 10px;
+        gap: 8px;
+        min-width: 0;
+        width: 150px;
+      }
+
+      .timer-container {
+        gap: 6px;
+        min-width: 0;
+        padding: 8px 10px;
+      }
+
+      .timer-label {
+        font-size: 0.7rem;
+        letter-spacing: 1px;
+        padding-bottom: 2px;
+      }
+
+      .timer-display {
+        font-size: 1.3rem;
+        letter-spacing: 1px;
+      }
+
+      .timer-display .ms {
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        margin-left: 2px;
+        vertical-align: 2px;
+      }
+
+      .timer-buttons {
+        gap: 4px;
+        flex-wrap: wrap;
+      }
+
+      .timer-buttons button {
+        padding: 5px 7px;
+        font-size: 0.7rem;
+        letter-spacing: 0.5px;
+        flex: 1 1 auto;
+        min-width: 38px;
+      }
+
+      .daily-totals {
+        padding: 8px 10px;
+        gap: 2px;
+      }
+
+      .daily-label {
+        font-size: 0.7rem;
+        letter-spacing: 1px;
+        padding-bottom: 3px;
+        margin-bottom: 2px;
+      }
+
+      .daily-row {
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+        padding: 1px 0;
+        gap: 8px;
+      }
+
+      .daily-row .daily-num {
+        font-size: 1rem;
+        min-width: 22px;
+      }
+
+      .daily-row.active::before {
+        margin-right: -6px;
+      }
+
+      /* Pad the main content so the tally-clicker doesn't sit
+         underneath the fixed top bars. */
+      .main {
+        padding-top: 180px;
+        gap: 18px;
+      }
+
+      .tracker-tabs {
+        gap: 6px;
+        margin: -4px 0 14px;
+      }
+
+      .tracker-tab {
+        padding: 8px 10px;
+        font-size: 0.78rem;
+        letter-spacing: 1.5px;
+        flex: 1 1 30%;
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+        letter-spacing: 3px;
+      }
+
+      .header .subtitle {
+        font-size: 0.85rem;
+        letter-spacing: 2px;
+        margin-bottom: 12px;
+      }
+
+      .tally-container {
+        padding: 24px 16px;
+        gap: 22px;
+        max-width: 100%;
+      }
+
+      .tally-label {
+        font-size: 1.1rem;
+        letter-spacing: 4px;
+      }
+
+      .tally-count {
+        font-size: 6.5rem;
+        letter-spacing: 4px;
+      }
+
+      .tally-pm {
+        gap: 16px;
+      }
+
+      .tally-pm button {
+        width: 96px;
+        height: 96px;
+        font-size: 3rem;
+        border-width: 2px;
+      }
+
+      #resetTallyBtn {
+        padding: 14px 22px;
+        font-size: 1rem;
+        letter-spacing: 2px;
+        width: 100%;
+        max-width: 320px;
+      }
+
+      .email-select-wrap {
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px 14px;
+        width: 100%;
+        max-width: 360px;
+      }
+
+      .email-select {
+        min-width: 0;
+        width: 100%;
+        font-size: 1rem;
+        padding: 12px 36px 12px 14px;
+      }
+
+      .email-select-label {
+        font-size: 1rem;
+        letter-spacing: 2px;
+      }
+
+      /* Analytics view tweaks */
+      body.analytics-mode .main {
+        padding-top: 170px;
+      }
+
+      body.analytics-mode .header h1 {
+        font-size: 1.3rem;
+        letter-spacing: 3px;
+      }
+
+      body.analytics-mode .header .subtitle {
+        font-size: 0.78rem;
+        letter-spacing: 1.5px;
+        margin-bottom: 6px;
+      }
+
+      .stat-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 6px;
+      }
+
+      .stat-card {
+        padding: 8px 4px;
+        gap: 3px;
+      }
+
+      .stat-value {
+        font-size: 1.3rem;
+        letter-spacing: 1px;
+      }
+
+      .stat-label {
+        font-size: 0.6rem;
+        letter-spacing: 1px;
+        line-height: 1.2;
+      }
+
+      .session-table-wrap {
+        padding: 10px 12px;
+      }
+
+      table {
+        font-size: 0.78rem;
+        letter-spacing: 0.5px;
+      }
+
+      th, td {
+        padding: 5px 6px;
+      }
+
+      .table-scroll {
+        max-height: 240px;
+      }
+
+      .chart-wrap {
+        padding: 8px;
+      }
+
+      .chart-svg {
+        height: 220px;
+      }
+
+      .analytics-actions {
+        gap: 8px;
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .analytics-actions button,
+      .analytics-actions .storage-status {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+      }
+
+      .storage-status {
+        max-width: 100%;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        white-space: normal;
+      }
+
+      /* Footer in flow on phones to avoid overlap */
+      .footer {
+        position: static;
+        text-align: center;
+        margin-top: 18px;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .top-right-stack {
+        width: 132px;
+      }
+
+      .tally-count {
+        font-size: 5rem;
+      }
+
+      .tally-pm button {
+        width: 80px;
+        height: 80px;
+        font-size: 2.4rem;
+      }
+
+      .tracker-tab {
+        font-size: 0.7rem;
+        padding: 7px 6px;
+      }
+
+      .stat-value {
+        font-size: 1.1rem;
+      }
+
+      .stat-label {
+        font-size: 0.55rem;
+      }
+
+      .main {
+        padding-top: 168px;
+      }
+    }
+
+    /* Touch-only refinements: bigger hit targets, no hover ghosting */
+    @media (hover: none) and (pointer: coarse) {
+      button {
+        min-height: 44px;
+      }
+
+      button:hover {
+        background: transparent;
+        color: var(--green);
+        text-shadow: inherit;
+        box-shadow: none;
+      }
+
+      button:active {
+        background: var(--green);
+        color: var(--bg);
+        text-shadow: none;
+        box-shadow: 0 0 12px var(--green-glow);
+      }
+
+      .tracker-tab:hover {
+        background: transparent;
+        color: var(--green-dim);
+        border-color: var(--green-dim);
+        text-shadow: 0 0 2px var(--green-dim);
+      }
+
+      .tracker-tab.active,
+      .tracker-tab:active {
+        background: var(--green);
+        color: var(--bg);
+        border-color: var(--green);
+        text-shadow: none;
+        box-shadow: 0 0 12px var(--green-glow);
+      }
+    }
+
+    /* Standalone (installed PWA) mode tweaks */
+    @media (display-mode: standalone) {
+      body {
+        padding-top: max(20px, env(safe-area-inset-top));
+      }
+    }
+
+    /* Disable double-tap zoom and rubber-band scroll bounce on iOS */
+    html {
+      touch-action: manipulation;
+      overscroll-behavior-y: none;
+    }
+  </style>
+</head>
+<body>
+  <button class="page-toggle" id="pageToggleBtn">Analytics</button>
+
+  <div class="top-right-stack">
+    <div class="timer-container crt">
+      <div class="timer-label">[ SESSION TIMER ]</div>
+      <div class="timer-display" id="timerDisplay">00:00:00</div>
+      <div class="timer-buttons">
+        <button id="startBtn">Start</button>
+        <button id="stopBtn">Stop</button>
+        <button id="resetBtn">Reset</button>
+      </div>
+    </div>
+
+    <div class="daily-totals crt">
+      <div class="daily-label">[ TODAY'S TALLY ]</div>
+      <div class="daily-row" data-tracker="email">
+        <span class="name">EMAIL</span>
+        <span class="daily-num" id="dailyEmailCount">0</span>
+      </div>
+      <div class="daily-row" data-tracker="dm">
+        <span class="name">DM</span>
+        <span class="daily-num" id="dailyDmCount">0</span>
+      </div>
+      <div class="daily-row" data-tracker="video">
+        <span class="name">VIDEO</span>
+        <span class="daily-num" id="dailyVideoCount">0</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="header">
+      <h1>ETMCLEANING</h1>
+      <div class="subtitle" id="pageSubtitle">Daily Email Tracker</div>
+      <div class="bot-line"></div>
+    </div>
+
+    <div class="tracker-tabs">
+      <button class="tracker-tab active" data-tracker="email">Email Tally</button>
+      <button class="tracker-tab" data-tracker="dm">DM Tally</button>
+      <button class="tracker-tab" data-tracker="video">Video Upload Tally</button>
+    </div>
+
+    <!-- Tracker view -->
+    <section class="view" id="trackerView">
+      <div class="tally-container crt">
+        <div class="tally-label">&gt; COUNT</div>
+        <div class="tally-count" id="tallyCount">0</div>
+        <div class="tally-pm">
+          <button id="minusBtn" title="Subtract one">&minus;</button>
+          <button id="plusBtn" title="Add one">+</button>
+        </div>
+        <button id="resetTallyBtn">End Session</button>
+      </div>
+
+      <div class="email-select-wrap crt">
+        <label class="email-select-label" for="emailSelect">EMAIL USED</label>
+        <select class="email-select" id="emailSelect">
+          <option value="contact@etmcleaning.com">contact@etmcleaning.com</option>
+          <option value="inquiries@etmcleaning.com">inquiries@etmcleaning.com</option>
+          <option value="peter@etm-cleaning.com">peter@etm-cleaning.com</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Analytics view -->
+    <section class="view hidden" id="analyticsView">
+      <div class="analytics-wrap">
+        <div class="stat-grid">
+          <div class="stat-card crt">
+            <div class="stat-label" id="statTotalLabel">Total Emails Sent</div>
+            <div class="stat-value" id="statTotalEmails">0</div>
+          </div>
+          <div class="stat-card crt">
+            <div class="stat-label" id="statAvgLabel">Avg Time / Email</div>
+            <div class="stat-value" id="statAvgGap">--:--</div>
+          </div>
+          <div class="stat-card crt">
+            <div class="stat-label">Total Sessions</div>
+            <div class="stat-value" id="statTotalSessions">0</div>
+          </div>
+        </div>
+
+        <div class="analytics-bottom">
+          <div class="session-table-wrap crt">
+            <div class="session-table-title">[ SESSION LOG ]</div>
+            <div class="table-scroll">
+              <table id="sessionTable">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Date</th>
+                    <th class="email-col">Email</th>
+                    <th>Duration</th>
+                    <th id="thCount">Sent</th>
+                    <th>Avg</th>
+                  </tr>
+                </thead>
+                <tbody id="sessionTableBody"></tbody>
+              </table>
+              <div class="empty-state hidden" id="emptyState">
+                &gt; NO SESSIONS LOGGED YET.
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-wrap crt">
+            <div class="chart-header">
+              <div class="chart-title">[ SESSION TRENDS ]</div>
+              <div class="chart-legend">
+                <span class="legend-item legend-emails">
+                  <span class="legend-swatch" style="background: currentColor;"></span>
+                  <span id="legendCountText">Emails</span>
+                </span>
+                <span class="legend-item legend-time">
+                  <span class="legend-swatch" style="background: currentColor;"></span>
+                  Time (min)
+                </span>
+              </div>
+            </div>
+            <svg class="chart-svg" id="sessionChart" viewBox="0 0 900 320" preserveAspectRatio="none"></svg>
+            <div class="chart-empty hidden" id="chartEmpty">
+              &gt; LOG AT LEAST ONE SESSION TO SEE TRENDS.
+            </div>
+          </div>
+        </div>
+
+        <div class="analytics-actions">
+          <span class="storage-status" id="storageStatus">
+            <span class="dot"></span>
+            <span id="storageStatusText">LOCAL BROWSER ONLY</span>
+          </span>
+          <button id="connectFileBtn">Save to File</button>
+          <button id="reconnectFileBtn" class="hidden">Reconnect File</button>
+          <button id="disconnectFileBtn" class="hidden">Disconnect File</button>
+          <button id="exportBtn">Export</button>
+          <button id="importBtn">Import</button>
+          <input type="file" id="importInput" accept=".json,application/json" hidden>
+          <button id="clearHistoryBtn" class="danger">Clear History</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="footer">
+    READY<span class="blink">_</span>
+  </div>
+
+  <script>
+    // ==========================================================
+    // TRACKER CONFIG
+    // ==========================================================
+    const TRACKERS = {
+      email: {
+        id: "email",
+        name: "Email Tally",
+        trackerSubtitle: "Daily Email Tracker",
+        unitSingular: "Email",
+        unitPlural: "Emails",
+        actionVerb: "Sent",
+        showEmailSelector: true,
+      },
+      dm: {
+        id: "dm",
+        name: "DM Tally",
+        trackerSubtitle: "Daily DM Tracker",
+        unitSingular: "DM",
+        unitPlural: "DMs",
+        actionVerb: "Sent",
+        showEmailSelector: false,
+      },
+      video: {
+        id: "video",
+        name: "Video Upload Tally",
+        trackerSubtitle: "Daily Video Upload Tracker",
+        unitSingular: "Video",
+        unitPlural: "Videos",
+        actionVerb: "Uploaded",
+        showEmailSelector: false,
+      },
+    };
+    const TRACKER_IDS = Object.keys(TRACKERS);
+
+    let currentTracker = "email";
+    function tcfg() { return TRACKERS[currentTracker]; }
+
+    // Per-tracker in-memory state. Each holds the active (in-progress) session.
+    const trackerState = {};
+    TRACKER_IDS.forEach((t) => {
+      trackerState[t] = {
+        tally: 0,
+        tallyTimestamps: [],
+        sessionStartedAt: null,
+        timerStartedAt: null, // performance.now()
+        accumulatedMs: 0,
+      };
+    });
+    function st() { return trackerState[currentTracker]; }
+
+    // ==========================================================
+    // STORAGE
+    // - Multi-tracker data structure: { email: [...], dm: [...], video: [...] }
+    // - Always writes to localStorage (survives browser close).
+    // - If a file handle is connected, ALSO auto-saves to a JSON file on disk
+    //   (Chrome / Edge File System Access API).
+    // - Manual Export / Import for any browser as universal fallback.
+    // ==========================================================
+    const STORAGE_KEY = "etmcleaning.data.v2";
+    const LEGACY_KEY = "etmcleaning.sessions.v1";
+    const EMAIL_KEY = "etmcleaning.selectedEmail";
+    const FS_DB_NAME = "etmcleaning-fs";
+    const FS_STORE = "handles";
+    const FS_HANDLE_KEY = "sessions";
+
+    let fileHandle = null;
+    let fileNeedsPermission = false; // handle restored but user must re-grant
+
+    function emptyData() {
+      const d = {};
+      TRACKER_IDS.forEach((t) => (d[t] = []));
+      return d;
+    }
+
+    function normalizeData(parsed) {
+      const d = emptyData();
+      if (!parsed) return d;
+      // Old format = bare array of email sessions
+      if (Array.isArray(parsed)) {
+        d.email = parsed;
+        return d;
+      }
+      TRACKER_IDS.forEach((t) => {
+        if (Array.isArray(parsed[t])) d[t] = parsed[t];
+      });
+      return d;
+    }
+
+    function migrateLegacy() {
+      try {
+        if (localStorage.getItem(STORAGE_KEY)) return;
+        const legacy = localStorage.getItem(LEGACY_KEY);
+        if (!legacy) return;
+        const arr = JSON.parse(legacy);
+        if (Array.isArray(arr)) {
+          const data = emptyData();
+          data.email = arr;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+      } catch {}
+    }
+    migrateLegacy();
+
+    function loadAll() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return emptyData();
+        return normalizeData(JSON.parse(raw));
+      } catch {
+        return emptyData();
+      }
+    }
+
+    function saveAllLocal(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function loadSessions(tracker = currentTracker) {
+      return loadAll()[tracker] || [];
+    }
+
+    async function saveSessions(sessions, tracker = currentTracker) {
+      const all = loadAll();
+      all[tracker] = sessions;
+      saveAllLocal(all);
+      if (fileHandle && !fileNeedsPermission) {
+        try {
+          await writeHandle(fileHandle, all);
+        } catch (e) {
+          console.warn("Auto-save to file failed:", e);
+          fileNeedsPermission = true;
+          updateStorageStatus();
+        }
+      }
+    }
+
+    async function saveAll(data) {
+      saveAllLocal(data);
+      if (fileHandle && !fileNeedsPermission) {
+        try {
+          await writeHandle(fileHandle, data);
+        } catch (e) {
+          console.warn("Auto-save to file failed:", e);
+          fileNeedsPermission = true;
+          updateStorageStatus();
+        }
+      }
+    }
+
+    // ----- IndexedDB for storing the file handle across reloads -----
+    function openHandleDb() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(FS_DB_NAME, 1);
+        req.onupgradeneeded = () => {
+          req.result.createObjectStore(FS_STORE);
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function dbGetHandle() {
+      try {
+        const db = await openHandleDb();
+        return await new Promise((resolve, reject) => {
+          const tx = db.transaction(FS_STORE, "readonly");
+          const req = tx.objectStore(FS_STORE).get(FS_HANDLE_KEY);
+          req.onsuccess = () => resolve(req.result || null);
+          req.onerror = () => reject(req.error);
+        });
+      } catch {
+        return null;
+      }
+    }
+
+    async function dbSetHandle(handle) {
+      const db = await openHandleDb();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(FS_STORE, "readwrite");
+        tx.objectStore(FS_STORE).put(handle, FS_HANDLE_KEY);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function dbClearHandle() {
+      const db = await openHandleDb();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(FS_STORE, "readwrite");
+        tx.objectStore(FS_STORE).delete(FS_HANDLE_KEY);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    // ----- File handle helpers -----
+    async function ensurePermission(handle, mode = "readwrite") {
+      try {
+        if ((await handle.queryPermission({ mode })) === "granted") return true;
+        if ((await handle.requestPermission({ mode })) === "granted") return true;
+      } catch (e) {
+        console.warn(e);
+      }
+      return false;
+    }
+
+    async function readHandle(handle) {
+      const file = await handle.getFile();
+      const text = await file.text();
+      if (!text || !text.trim()) return emptyData();
+      try {
+        return normalizeData(JSON.parse(text));
+      } catch {
+        return emptyData();
+      }
+    }
+
+    async function writeHandle(handle, data) {
+      const writable = await handle.createWritable();
+      await writable.write(JSON.stringify(data, null, 2));
+      await writable.close();
+    }
+
+    function totalSessionCount(data) {
+      return TRACKER_IDS.reduce((n, t) => n + (data[t] ? data[t].length : 0), 0);
+    }
+
+    // ==========================================================
+    // DAILY TOTALS (top-right panel) - resets at midnight automatically
+    // because counts are derived from sessions filtered by today's date,
+    // never destructively cleared.
+    // ==========================================================
+    function isToday(ms) {
+      if (!ms) return false;
+      const d = new Date(ms);
+      const now = new Date();
+      return (
+        d.getFullYear() === now.getFullYear() &&
+        d.getMonth() === now.getMonth() &&
+        d.getDate() === now.getDate()
+      );
+    }
+
+    function getDailyCount(tracker) {
+      const sessions = loadSessions(tracker);
+      let total = 0;
+      sessions.forEach((s) => {
+        if (isToday(s.endedAt || s.startedAt)) {
+          total += s.emailCount || 0;
+        }
+      });
+      total += trackerState[tracker].tally;
+      return total;
+    }
+
+    const dailyEls = {
+      email: document.getElementById("dailyEmailCount"),
+      dm: document.getElementById("dailyDmCount"),
+      video: document.getElementById("dailyVideoCount"),
+    };
+    const dailyRows = document.querySelectorAll(".daily-row");
+
+    function updateDailyTotals() {
+      TRACKER_IDS.forEach((t) => {
+        if (dailyEls[t]) dailyEls[t].textContent = getDailyCount(t);
+      });
+      dailyRows.forEach((row) =>
+        row.classList.toggle("active", row.dataset.tracker === currentTracker)
+      );
+    }
+
+    // Refresh once a minute so daily counts roll over at midnight even
+    // if the user hasn't interacted with the page.
+    setInterval(updateDailyTotals, 60 * 1000);
+
+    function isFsApiSupported() {
+      return "showSaveFilePicker" in window;
+    }
+
+    async function connectFile() {
+      if (!isFsApiSupported()) {
+        alert(
+          "Your browser doesn't support saving to a file directly. Use Export to download a backup, or open this app in Chrome / Edge."
+        );
+        return;
+      }
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: "etmcleaning-data.json",
+          types: [
+            {
+              description: "ETM Tracker Data JSON",
+              accept: { "application/json": [".json"] },
+            },
+          ],
+        });
+        if (!(await ensurePermission(handle))) {
+          alert("Permission to write to that file was denied.");
+          return;
+        }
+        const existing = await readHandle(handle);
+        const existingTotal = totalSessionCount(existing);
+        const localTotal = totalSessionCount(loadAll());
+        if (existingTotal > 0) {
+          if (
+            confirm(
+              `That file already has ${existingTotal} session(s) across all trackers. Load them and use this file going forward? (Cancel = overwrite the file with your current ${localTotal} session(s) instead.)`
+            )
+          ) {
+            saveAllLocal(existing);
+          } else {
+            await writeHandle(handle, loadAll());
+          }
+        } else {
+          await writeHandle(handle, loadAll());
+        }
+        fileHandle = handle;
+        fileNeedsPermission = false;
+        await dbSetHandle(handle);
+        updateStorageStatus();
+        renderAnalytics();
+        updateDailyTotals();
+      } catch (e) {
+        if (e && e.name !== "AbortError") {
+          console.error(e);
+          alert("Could not connect to file: " + e.message);
+        }
+      }
+    }
+
+    async function reconnectFile() {
+      if (!fileHandle) return;
+      if (await ensurePermission(fileHandle)) {
+        try {
+          const data = await readHandle(fileHandle);
+          saveAllLocal(data);
+        } catch (e) {
+          console.warn(e);
+        }
+        fileNeedsPermission = false;
+        updateStorageStatus();
+        renderAnalytics();
+        updateDailyTotals();
+      }
+    }
+
+    async function disconnectFile() {
+      fileHandle = null;
+      fileNeedsPermission = false;
+      try {
+        await dbClearHandle();
+      } catch {}
+      updateStorageStatus();
+    }
+
+    async function tryRestoreFileHandle() {
+      if (!isFsApiSupported()) return;
+      const handle = await dbGetHandle();
+      if (!handle) return;
+      try {
+        const perm = await handle.queryPermission({ mode: "readwrite" });
+        if (perm === "granted") {
+          fileHandle = handle;
+          try {
+            const data = await readHandle(handle);
+            saveAllLocal(data);
+          } catch {}
+          fileNeedsPermission = false;
+        } else {
+          fileHandle = handle;
+          fileNeedsPermission = true;
+        }
+      } catch (e) {
+        console.warn("Could not restore file handle:", e);
+      }
+      updateStorageStatus();
+    }
+
+    // ----- Export / Import (universal) -----
+    function exportData() {
+      const data = loadAll();
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const today = new Date().toISOString().split("T")[0];
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `etmcleaning-data-${today}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    async function importData(file) {
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        const incoming = normalizeData(parsed);
+        const current = loadAll();
+        const incomingTotal = totalSessionCount(incoming);
+        const currentTotal = totalSessionCount(current);
+        const choice = prompt(
+          `File contains ${incomingTotal} session(s) across all trackers. Type:\n  R = REPLACE current ${currentTotal} session(s)\n  M = MERGE with current (append)\n  C = Cancel`,
+          "M"
+        );
+        if (!choice) return;
+        const c = choice.trim().toUpperCase();
+        if (c === "R") {
+          await saveAll(incoming);
+        } else if (c === "M") {
+          const merged = emptyData();
+          TRACKER_IDS.forEach((t) => {
+            merged[t] = [...(current[t] || []), ...(incoming[t] || [])];
+          });
+          await saveAll(merged);
+        } else {
+          return;
+        }
+        renderAnalytics();
+        updateDailyTotals();
+      } catch (e) {
+        alert("Could not import file: " + e.message);
+      }
+    }
+
+    // ----- Storage status UI -----
+    const storageStatus = document.getElementById("storageStatus");
+    const storageStatusText = document.getElementById("storageStatusText");
+    const connectFileBtn = document.getElementById("connectFileBtn");
+    const reconnectFileBtn = document.getElementById("reconnectFileBtn");
+    const disconnectFileBtn = document.getElementById("disconnectFileBtn");
+    const exportBtn = document.getElementById("exportBtn");
+    const importBtn = document.getElementById("importBtn");
+    const importInput = document.getElementById("importInput");
+
+    function updateStorageStatus() {
+      storageStatus.classList.remove("connected", "warn");
+      if (fileHandle && !fileNeedsPermission) {
+        storageStatus.classList.add("connected");
+        storageStatusText.textContent = `AUTO-SAVING TO ${fileHandle.name}`;
+        connectFileBtn.classList.add("hidden");
+        reconnectFileBtn.classList.add("hidden");
+        disconnectFileBtn.classList.remove("hidden");
+      } else if (fileHandle && fileNeedsPermission) {
+        storageStatus.classList.add("warn");
+        storageStatusText.textContent = `RECONNECT NEEDED: ${fileHandle.name}`;
+        connectFileBtn.classList.add("hidden");
+        reconnectFileBtn.classList.remove("hidden");
+        disconnectFileBtn.classList.remove("hidden");
+      } else {
+        storageStatusText.textContent = isFsApiSupported()
+          ? "LOCAL BROWSER ONLY"
+          : "LOCAL BROWSER ONLY (FILE SAVE UNSUPPORTED IN THIS BROWSER)";
+        connectFileBtn.classList.remove("hidden");
+        reconnectFileBtn.classList.add("hidden");
+        disconnectFileBtn.classList.add("hidden");
+      }
+    }
+
+    connectFileBtn.addEventListener("click", connectFile);
+    reconnectFileBtn.addEventListener("click", reconnectFile);
+    disconnectFileBtn.addEventListener("click", disconnectFile);
+    exportBtn.addEventListener("click", exportData);
+    importBtn.addEventListener("click", () => importInput.click());
+    importInput.addEventListener("change", () => {
+      const f = importInput.files && importInput.files[0];
+      if (f) importData(f);
+      importInput.value = "";
+    });
+
+    // Try to silently re-attach a previously-connected file
+    tryRestoreFileHandle();
+    updateStorageStatus();
+
+    // ==========================================================
+    // EMAIL SELECTOR (Email tracker only)
+    // ==========================================================
+    const emailSelect = document.getElementById("emailSelect");
+    const emailSelectWrap = document.querySelector(".email-select-wrap");
+    const savedEmail = localStorage.getItem(EMAIL_KEY);
+    if (savedEmail) {
+      const has = Array.from(emailSelect.options).some((o) => o.value === savedEmail);
+      if (has) emailSelect.value = savedEmail;
+    }
+    emailSelect.addEventListener("change", () => {
+      localStorage.setItem(EMAIL_KEY, emailSelect.value);
+    });
+
+    // ==========================================================
+    // TIMER (millisecond precision; per-tracker state)
+    // ==========================================================
+    let timerInterval = null; // single shared interval, reads from active tracker state
+    const timerDisplay = document.getElementById("timerDisplay");
+    const startBtn = document.getElementById("startBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    function getElapsedMs() {
+      const s = st();
+      if (s.timerStartedAt != null) {
+        return s.accumulatedMs + (performance.now() - s.timerStartedAt);
+      }
+      return s.accumulatedMs;
+    }
+
+    function formatTime(totalSeconds) {
+      const t = Math.max(0, Math.floor(totalSeconds));
+      const h = String(Math.floor(t / 3600)).padStart(2, "0");
+      const m = String(Math.floor((t % 3600) / 60)).padStart(2, "0");
+      const s = String(t % 60).padStart(2, "0");
+      return `${h}:${m}:${s}`;
+    }
+
+    function formatTimeMs(totalMs) {
+      const totalSeconds = Math.floor(totalMs / 1000);
+      const h = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
+      const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
+      const s = String(totalSeconds % 60).padStart(2, "0");
+      const ms = String(Math.floor(totalMs % 1000)).padStart(3, "0");
+      return { main: `${h}:${m}:${s}`, ms };
+    }
+
+    function formatShort(totalSeconds) {
+      if (!isFinite(totalSeconds) || totalSeconds <= 0) return "--:--";
+      const m = Math.floor(totalSeconds / 60);
+      const s = Math.floor(totalSeconds % 60);
+      return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    }
+
+    function renderTimer() {
+      const { main, ms } = formatTimeMs(getElapsedMs());
+      timerDisplay.innerHTML = `${main}<span class="ms">.${ms}</span>`;
+    }
+
+    function startTimerIfNeeded() {
+      const s = st();
+      if (s.timerStartedAt != null) return; // already running for this tracker
+      s.timerStartedAt = performance.now();
+      ensureTimerLoop();
+      renderTimer();
+    }
+
+    function ensureTimerLoop() {
+      if (timerInterval) return;
+      timerInterval = setInterval(() => {
+        // If active tracker isn't running, stop the loop
+        if (st().timerStartedAt == null) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          return;
+        }
+        renderTimer();
+      }, 31);
+    }
+
+    function stopTimer() {
+      const s = st();
+      if (s.timerStartedAt == null) return;
+      s.accumulatedMs = getElapsedMs();
+      s.timerStartedAt = null;
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      renderTimer();
+    }
+
+    function resetTimer() {
+      const s = st();
+      s.timerStartedAt = null;
+      s.accumulatedMs = 0;
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      renderTimer();
+    }
+
+    // Snapshot current tracker's timer (preserve elapsed; pause it) when switching trackers
+    function pauseActiveTimer() {
+      const s = st();
+      if (s.timerStartedAt != null) {
+        s.accumulatedMs = getElapsedMs();
+        s.timerStartedAt = null;
+      }
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+
+    startBtn.addEventListener("click", () => startTimerIfNeeded());
+    stopBtn.addEventListener("click", () => stopTimer());
+    resetBtn.addEventListener("click", () => resetTimer());
+
+    // ==========================================================
+    // TALLY (per-tracker)
+    // ==========================================================
+    const tallyCount = document.getElementById("tallyCount");
+    const plusBtn = document.getElementById("plusBtn");
+    const minusBtn = document.getElementById("minusBtn");
+    const resetTallyBtn = document.getElementById("resetTallyBtn");
+
+    function updateTally() {
+      tallyCount.textContent = st().tally;
+      updateDailyTotals();
+    }
+
+    plusBtn.addEventListener("click", () => {
+      const s = st();
+      if (s.tally === 0 && getElapsedMs() === 0) {
+        startTimerIfNeeded();
+        s.sessionStartedAt = Date.now();
+      }
+      s.tally++;
+      s.tallyTimestamps.push(Date.now());
+      updateTally();
+    });
+
+    minusBtn.addEventListener("click", () => {
+      const s = st();
+      if (s.tally > 0) {
+        s.tally--;
+        if (s.tallyTimestamps.length) s.tallyTimestamps.pop();
+        updateTally();
+      }
+    });
+
+    resetTallyBtn.addEventListener("click", () => {
+      const s = st();
+      const elapsedMs = getElapsedMs();
+      if (s.tally > 0 || elapsedMs > 0) {
+        const sessions = loadSessions();
+        const session = {
+          startedAt: s.sessionStartedAt || Date.now(),
+          endedAt: Date.now(),
+          durationSeconds: elapsedMs / 1000,
+          emailCount: s.tally,
+          tallyTimestamps: s.tallyTimestamps.slice(),
+          trackerType: currentTracker,
+        };
+        if (currentTracker === "email") session.emailUsed = emailSelect.value;
+        sessions.push(session);
+        saveSessions(sessions);
+      }
+
+      s.tally = 0;
+      s.tallyTimestamps = [];
+      s.sessionStartedAt = null;
+      updateTally();
+      resetTimer();
+      renderAnalytics();
+    });
+
+    // ==========================================================
+    // TRACKER TABS / TRACKER SWITCHING
+    // ==========================================================
+    const trackerTabs = document.querySelectorAll(".tracker-tab");
+
+    function applyTrackerToUI() {
+      const cfg = tcfg();
+      // Tabs
+      trackerTabs.forEach((btn) =>
+        btn.classList.toggle("active", btn.dataset.tracker === currentTracker)
+      );
+      // Email selector visibility
+      emailSelectWrap.classList.toggle("hidden", !cfg.showEmailSelector);
+      // Tally + timer
+      updateTally();
+      renderTimer();
+      if (st().timerStartedAt != null) ensureTimerLoop();
+      // Page subtitle / toggle button
+      updateHeaderText();
+      // Analytics labels (in case the user's on analytics or about to be)
+      updateAnalyticsLabels();
+    }
+
+    function switchTracker(tracker) {
+      if (!TRACKERS[tracker] || tracker === currentTracker) return;
+      pauseActiveTimer();
+      currentTracker = tracker;
+      applyTrackerToUI();
+      if (currentView === "analytics") renderAnalytics();
+    }
+
+    trackerTabs.forEach((btn) => {
+      btn.addEventListener("click", () => switchTracker(btn.dataset.tracker));
+    });
+
+    // ==========================================================
+    // NAVIGATION (Tracker view <-> Analytics view)
+    // ==========================================================
+    const pageToggleBtn = document.getElementById("pageToggleBtn");
+    const trackerView = document.getElementById("trackerView");
+    const analyticsView = document.getElementById("analyticsView");
+    const pageSubtitle = document.getElementById("pageSubtitle");
+
+    let currentView = "tracker";
+
+    function updateHeaderText() {
+      const cfg = tcfg();
+      if (currentView === "tracker") {
+        pageSubtitle.textContent = cfg.trackerSubtitle;
+        pageToggleBtn.textContent = cfg.name;
+      } else {
+        pageSubtitle.textContent = cfg.name;
+        pageToggleBtn.textContent = "Tracker";
+      }
+    }
+
+    function switchView(view) {
+      currentView = view;
+      if (view === "tracker") {
+        trackerView.classList.remove("hidden");
+        analyticsView.classList.add("hidden");
+        document.body.classList.remove("analytics-mode");
+      } else {
+        trackerView.classList.add("hidden");
+        analyticsView.classList.remove("hidden");
+        document.body.classList.add("analytics-mode");
+        renderAnalytics();
+      }
+      updateHeaderText();
+    }
+
+    pageToggleBtn.addEventListener("click", () => {
+      switchView(currentView === "tracker" ? "analytics" : "tracker");
+    });
+
+    // ==========================================================
+    // ANALYTICS
+    // ==========================================================
+    const statTotalEmails = document.getElementById("statTotalEmails");
+    const statAvgGap = document.getElementById("statAvgGap");
+    const statTotalSessions = document.getElementById("statTotalSessions");
+    const statTotalLabel = document.getElementById("statTotalLabel");
+    const statAvgLabel = document.getElementById("statAvgLabel");
+    const thCount = document.getElementById("thCount");
+    const legendCountText = document.getElementById("legendCountText");
+    const sessionTableBody = document.getElementById("sessionTableBody");
+    const emptyState = document.getElementById("emptyState");
+    const sessionTable = document.getElementById("sessionTable");
+    const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+
+    function computeAvgGap(timestamps) {
+      if (!timestamps || timestamps.length < 2) return null;
+      const totalMs = timestamps[timestamps.length - 1] - timestamps[0];
+      const gaps = timestamps.length - 1;
+      return totalMs / gaps / 1000;
+    }
+
+    function formatDate(ms) {
+      const d = new Date(ms);
+      return d.toLocaleString(undefined, {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      });
+    }
+
+    function updateAnalyticsLabels() {
+      const cfg = tcfg();
+      statTotalLabel.textContent = `Total ${cfg.unitPlural} ${cfg.actionVerb}`;
+      statAvgLabel.textContent = `Avg Time / ${cfg.unitSingular}`;
+      thCount.textContent = cfg.actionVerb;
+      legendCountText.textContent = cfg.unitPlural;
+      // Email column visible only for email tracker
+      const showEmail = currentTracker === "email";
+      document
+        .querySelectorAll(".email-col")
+        .forEach((el) => el.classList.toggle("hidden", !showEmail));
+    }
+
+    function renderAnalytics() {
+      updateAnalyticsLabels();
+
+      const sessions = loadSessions();
+      const s = st();
+
+      const totalCount =
+        sessions.reduce((sum, x) => sum + (x.emailCount || 0), 0) + s.tally;
+
+      let totalGapSeconds = 0;
+      let gapCount = 0;
+      sessions.forEach((x) => {
+        const ts = x.tallyTimestamps;
+        if (Array.isArray(ts) && ts.length >= 2) {
+          for (let i = 1; i < ts.length; i++) {
+            totalGapSeconds += (ts[i] - ts[i - 1]) / 1000;
+            gapCount++;
+          }
+        }
+      });
+      if (s.tallyTimestamps.length >= 2) {
+        for (let i = 1; i < s.tallyTimestamps.length; i++) {
+          totalGapSeconds += (s.tallyTimestamps[i] - s.tallyTimestamps[i - 1]) / 1000;
+          gapCount++;
+        }
+      }
+      const avgGap = gapCount > 0 ? totalGapSeconds / gapCount : null;
+
+      statTotalEmails.textContent = totalCount;
+      statAvgGap.textContent = avgGap == null ? "--:--" : formatShort(avgGap);
+      statTotalSessions.textContent = sessions.length;
+
+      const showEmailCol = currentTracker === "email";
+      sessionTableBody.innerHTML = "";
+      if (sessions.length === 0) {
+        sessionTable.style.display = "none";
+        emptyState.classList.remove("hidden");
+      } else {
+        sessionTable.style.display = "";
+        emptyState.classList.add("hidden");
+        sessions
+          .slice()
+          .reverse()
+          .forEach((x, idx) => {
+            const tr = document.createElement("tr");
+            const sessionAvg = computeAvgGap(x.tallyTimestamps);
+            const emailCell = showEmailCol
+              ? (() => {
+                  const full = x.emailUsed || "—";
+                  const short =
+                    full && full.includes("@") ? full.split("@")[0] : full;
+                  return `<td class="email-col" title="${full}">${short}</td>`;
+                })()
+              : "";
+            tr.innerHTML = `
+              <td>${sessions.length - idx}</td>
+              <td>${formatDate(x.startedAt || x.endedAt)}</td>
+              ${emailCell}
+              <td>${formatTime(x.durationSeconds || 0)}</td>
+              <td>${x.emailCount || 0}</td>
+              <td>${sessionAvg == null ? "--:--" : formatShort(sessionAvg)}</td>
+            `;
+            sessionTableBody.appendChild(tr);
+          });
+      }
+
+      renderChart(sessions);
+    }
+
+    // ==========================================================
+    // CHART
+    // ==========================================================
+    const chartSvg = document.getElementById("sessionChart");
+    const chartEmpty = document.getElementById("chartEmpty");
+
+    function niceMax(value) {
+      if (value <= 0) return 1;
+      const exp = Math.floor(Math.log10(value));
+      const base = Math.pow(10, exp);
+      const n = value / base;
+      let nice;
+      if (n <= 1) nice = 1;
+      else if (n <= 2) nice = 2;
+      else if (n <= 5) nice = 5;
+      else nice = 10;
+      return nice * base;
+    }
+
+    function renderChart(sessions) {
+      if (!sessions || sessions.length === 0) {
+        chartSvg.style.display = "none";
+        chartEmpty.classList.remove("hidden");
+        chartSvg.innerHTML = "";
+        return;
+      }
+      chartSvg.style.display = "";
+      chartEmpty.classList.add("hidden");
+
+      const W = 900;
+      const H = 320;
+      const padL = 50;
+      const padR = 60;
+      const padT = 20;
+      const padB = 44;
+      const innerW = W - padL - padR;
+      const innerH = H - padT - padB;
+
+      const emails = sessions.map((s) => s.emailCount || 0);
+      const minutes = sessions.map((s) => (s.durationSeconds || 0) / 60);
+
+      const maxEmails = niceMax(Math.max(1, ...emails));
+      const maxMinutes = niceMax(Math.max(1, ...minutes));
+
+      const n = sessions.length;
+      const xFor = (i) => {
+        if (n === 1) return padL + innerW / 2;
+        return padL + (i / (n - 1)) * innerW;
+      };
+      const yEmails = (v) => padT + innerH - (v / maxEmails) * innerH;
+      const yMinutes = (v) => padT + innerH - (v / maxMinutes) * innerH;
+
+      const ticks = 4;
+      let svg = "";
+
+      // grid lines + y labels (left = emails, right = minutes)
+      for (let i = 0; i <= ticks; i++) {
+        const y = padT + (i / ticks) * innerH;
+        svg += `<line class="grid-line" x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" />`;
+        const eVal = Math.round(((ticks - i) / ticks) * maxEmails);
+        const mVal = Math.round(((ticks - i) / ticks) * maxMinutes);
+        svg += `<text class="axis-label" x="${padL - 8}" y="${y + 4}" text-anchor="end">${eVal}</text>`;
+        svg += `<text class="axis-label right" x="${W - padR + 8}" y="${y + 4}" text-anchor="start">${mVal}m</text>`;
+      }
+
+      // x axis
+      svg += `<line class="axis-line" x1="${padL}" y1="${padT + innerH}" x2="${W - padR}" y2="${padT + innerH}" />`;
+      svg += `<line class="axis-line" x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + innerH}" />`;
+      svg += `<line class="axis-line" x1="${W - padR}" y1="${padT}" x2="${W - padR}" y2="${padT + innerH}" />`;
+
+      // x labels — show session number, thinned out if many sessions
+      const maxXLabels = 12;
+      const step = Math.max(1, Math.ceil(n / maxXLabels));
+      for (let i = 0; i < n; i++) {
+        if (i % step !== 0 && i !== n - 1) continue;
+        const x = xFor(i);
+        svg += `<text class="x-label" x="${x}" y="${padT + innerH + 18}" text-anchor="middle">#${i + 1}</text>`;
+      }
+
+      // emails line
+      const emailsPath = sessions
+        .map((_, i) => `${i === 0 ? "M" : "L"}${xFor(i).toFixed(1)},${yEmails(emails[i]).toFixed(1)}`)
+        .join(" ");
+      svg += `<path class="line-emails" d="${emailsPath}" />`;
+
+      // time line
+      const timePath = sessions
+        .map((_, i) => `${i === 0 ? "M" : "L"}${xFor(i).toFixed(1)},${yMinutes(minutes[i]).toFixed(1)}`)
+        .join(" ");
+      svg += `<path class="line-time" d="${timePath}" />`;
+
+      // dots
+      for (let i = 0; i < n; i++) {
+        svg += `<circle class="dot-emails" cx="${xFor(i).toFixed(1)}" cy="${yEmails(emails[i]).toFixed(1)}" r="4" />`;
+        svg += `<circle class="dot-time" cx="${xFor(i).toFixed(1)}" cy="${yMinutes(minutes[i]).toFixed(1)}" r="4" />`;
+      }
+
+      // axis titles
+      const axisLeftLabel = tcfg().unitPlural.toUpperCase();
+      svg += `<text class="axis-label" x="${padL - 8}" y="${padT - 6}" text-anchor="end">${axisLeftLabel}</text>`;
+      svg += `<text class="axis-label right" x="${W - padR + 8}" y="${padT - 6}" text-anchor="start">MIN</text>`;
+      svg += `<text class="x-label" x="${padL + innerW / 2}" y="${H - 6}" text-anchor="middle">SESSION #</text>`;
+
+      chartSvg.innerHTML = svg;
+    }
+
+    clearHistoryBtn.addEventListener("click", () => {
+      if (
+        confirm(
+          `Clear all logged ${tcfg().name} sessions? This cannot be undone. (Current in-progress session is not affected. Other trackers' history is not affected.)`
+        )
+      ) {
+        saveSessions([]);
+        renderAnalytics();
+        updateDailyTotals();
+      }
+    });
+
+    // ==========================================================
+    // INITIAL RENDER
+    // ==========================================================
+    applyTrackerToUI();
+    renderTimer();
+    renderAnalytics();
+
+    // ==========================================================
+    // PWA: register the service worker so the app installs and
+    // runs offline. Only registers when served over http(s) or
+    // localhost - file:// URLs silently skip this.
+    // ==========================================================
+    if ("serviceWorker" in navigator) {
+      const isFile = location.protocol === "file:";
+      if (!isFile) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("sw.js")
+            .catch((err) => console.warn("SW registration failed:", err));
+        });
+      }
+    }
+  </script>
+</body>
+</html>

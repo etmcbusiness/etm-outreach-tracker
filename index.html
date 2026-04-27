@@ -956,30 +956,58 @@
       body {
         padding: 12px;
         padding-top: max(12px, env(safe-area-inset-top));
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+        padding-left: max(12px, env(safe-area-inset-left));
+        padding-right: max(12px, env(safe-area-inset-right));
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
       }
 
-      /* On phones, the fixed top bars become smaller and
-         body content gets padded out from under them. */
+      /* ===========================================================
+         CRITICAL: on phones, take the page-toggle and the timer +
+         daily-totals stack OUT of fixed positioning and put them in
+         the normal document flow at the top of the page. This is
+         what fixes the "jumbled" + "overlapping analytics" issue.
+         =========================================================== */
       .page-toggle {
-        top: max(10px, env(safe-area-inset-top));
-        left: 10px;
-        padding: 8px 12px;
+        position: relative;
+        top: auto;
+        left: auto;
+        align-self: flex-start;
+        margin: 0 0 10px;
+        padding: 10px 14px;
         font-size: 0.85rem;
         letter-spacing: 2px;
+        z-index: 20;
       }
 
       .top-right-stack {
-        top: max(10px, env(safe-area-inset-top));
-        right: 10px;
-        gap: 8px;
+        position: relative;
+        top: auto;
+        right: auto;
+        flex-direction: row;
+        align-items: stretch;
+        width: 100%;
         min-width: 0;
-        width: 150px;
+        max-width: 100%;
+        gap: 10px;
+        margin: 0 0 14px;
+        z-index: 20;
       }
 
       .timer-container {
+        flex: 1 1 0;
+        min-width: 0;
         gap: 6px;
+        padding: 8px 10px;
+      }
+
+      .daily-totals {
+        flex: 1 1 0;
         min-width: 0;
         padding: 8px 10px;
+        gap: 2px;
       }
 
       .timer-label {
@@ -989,12 +1017,12 @@
       }
 
       .timer-display {
-        font-size: 1.3rem;
+        font-size: 1.6rem;
         letter-spacing: 1px;
       }
 
       .timer-display .ms {
-        font-size: 0.85rem;
+        font-size: 1rem;
         letter-spacing: 1px;
         margin-left: 2px;
         vertical-align: 2px;
@@ -1013,11 +1041,6 @@
         min-width: 38px;
       }
 
-      .daily-totals {
-        padding: 8px 10px;
-        gap: 2px;
-      }
-
       .daily-label {
         font-size: 0.7rem;
         letter-spacing: 1px;
@@ -1033,7 +1056,7 @@
       }
 
       .daily-row .daily-num {
-        font-size: 1rem;
+        font-size: 1.05rem;
         min-width: 22px;
       }
 
@@ -1041,10 +1064,42 @@
         margin-right: -6px;
       }
 
-      /* Pad the main content so the tally-clicker doesn't sit
-         underneath the fixed top bars. */
+      /* ===== Analytics-view mobile: timer is hidden, daily-totals
+         flips to a single horizontal strip so it doesn't waste
+         vertical space above the analytics content. ===== */
+      body.analytics-mode .top-right-stack {
+        margin-bottom: 10px;
+      }
+
+      body.analytics-mode .daily-totals {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px 14px;
+        padding: 8px 12px;
+      }
+
+      body.analytics-mode .daily-label {
+        width: 100%;
+        text-align: left;
+        border-bottom: none;
+        padding-bottom: 0;
+        margin: 0;
+      }
+
+      body.analytics-mode .daily-row {
+        flex: 0 1 auto;
+        padding: 0;
+      }
+
+      body.analytics-mode .daily-row .daily-num {
+        font-size: 1rem;
+      }
+
       .main {
-        padding-top: 180px;
+        padding-top: 0;
+        min-height: 0;
+        justify-content: flex-start;
         gap: 18px;
       }
 
@@ -1128,10 +1183,6 @@
       }
 
       /* Analytics view tweaks */
-      body.analytics-mode .main {
-        padding-top: 170px;
-      }
-
       body.analytics-mode .header h1 {
         font-size: 1.3rem;
         letter-spacing: 3px;
@@ -1220,8 +1271,18 @@
     }
 
     @media (max-width: 380px) {
+      /* Very narrow phones: stack the timer above the daily totals
+         so each gets full width and stays legible. */
       .top-right-stack {
-        width: 132px;
+        flex-direction: column;
+      }
+
+      .timer-display {
+        font-size: 1.4rem;
+      }
+
+      .timer-display .ms {
+        font-size: 0.9rem;
       }
 
       .tally-count {
@@ -1247,8 +1308,10 @@
         font-size: 0.55rem;
       }
 
-      .main {
-        padding-top: 168px;
+      /* In analytics on tiny phones, daily-totals takes the full
+         width as a clean single strip (timer is hidden). */
+      body.analytics-mode .daily-totals {
+        gap: 4px 10px;
       }
     }
 

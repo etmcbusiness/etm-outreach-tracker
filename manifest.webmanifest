@@ -1,6 +1,6 @@
 {
-  "name": "ETMCLEANING Daily Tracker",
-  "short_name": "ETM Tracker",
+  "name": "ETM Outreach",
+  "short_name": "ETM Outreach",
   "description": "Track daily emails, DMs, and video uploads with a CRT-style tally + session timer.",
   "id": "/etm-tracker",
   "start_url": "./index.html",
@@ -12,22 +12,16 @@
   "categories": ["productivity", "utilities"],
   "icons": [
     {
-      "src": "icon.png",
+      "src": "icon.png?v=7",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icon.png",
+      "src": "icon.png?v=7",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
-    },
-    {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
     }
   ]
 }

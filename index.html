@@ -6,27 +6,25 @@
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover, user-scalable=no"
   />
-  <title>ETMCLEANING :: Daily Tracker</title>
+  <title>ETM Outreach</title>
 
   <!-- PWA -->
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#000800" />
   <meta name="color-scheme" content="dark" />
-  <meta name="application-name" content="ETM Tracker" />
+  <meta name="application-name" content="ETM Outreach" />
 
   <!-- iOS home-screen / standalone-app behavior -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="ETM Tracker" />
+  <meta name="apple-mobile-web-app-title" content="ETM Outreach" />
   <meta name="format-detection" content="telephone=no" />
 
-  <!-- Icons (drop your image in as icon.png to override the placeholder) -->
-  <link rel="icon" type="image/svg+xml" href="icon.svg" />
-  <link rel="icon" type="image/png" href="icon.png" />
-  <link rel="apple-touch-icon" href="icon.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="icon.png" />
-  <link rel="mask-icon" href="icon.svg" color="#33ff33" />
+  <!-- Icons (?v= bumps caches — SW + browsers hang onto favicons aggressively) -->
+  <link rel="icon" type="image/png" href="icon.png?v=7" />
+  <link rel="apple-touch-icon" href="icon.png?v=7" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icon.png?v=7" />
   <style>
     @import url("https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap");
 
@@ -1399,7 +1397,7 @@
 
   <div class="main">
     <div class="header">
-      <h1>ETMCLEANING</h1>
+      <h1>ETM Outreach</h1>
       <div class="subtitle" id="pageSubtitle">Daily Email Tracker</div>
       <div class="bot-line"></div>
     </div>
@@ -1807,7 +1805,7 @@
           suggestedName: "etmcleaning-data.json",
           types: [
             {
-              description: "ETM Tracker Data JSON",
+              description: "ETM Outreach Data JSON",
               accept: { "application/json": [".json"] },
             },
           ],

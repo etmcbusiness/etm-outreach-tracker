@@ -1,16 +1,17 @@
-// ETMCLEANING Daily Tracker - service worker
+// ETM Outreach - service worker
 // Strategy:
 //   - HTML / navigations  -> network-first (always get latest UI when online)
 //   - Other assets        -> stale-while-revalidate (fast + auto-updating)
 // Bump CACHE_NAME on every shipping change so old caches are purged.
 
-const CACHE_NAME = "etm-tracker-v3";
+const CACHE_NAME = "etm-tracker-v7";
+const ICON_ASSET = "./icon.png?v=7";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
   "./icon.svg",
-  "./icon.png",
+  ICON_ASSET,
 ];
 
 self.addEventListener("install", (event) => {
@@ -59,9 +60,33 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 2) Same-origin GETs: stale-while-revalidate.
+  // 2) Same-origin GETs
   const url = new URL(req.url);
   if (url.origin === self.location.origin) {
+    const path = url.pathname;
+    const isIcon =
+      path.endsWith("/icon.png") ||
+      path.endsWith("/icon.svg");
+    const isManifest = path.endsWith("/manifest.webmanifest");
+
+    // Favicon / launcher art / manifest: network-first so updates are not stuck
+    // behind a stale stale-while-revalidate icon forever.
+    if (isIcon || isManifest) {
+      event.respondWith(
+        fetch(req)
+          .then((res) => {
+            if (res && res.status === 200 && res.type === "basic") {
+              const copy = res.clone();
+              caches.open(CACHE_NAME).then((c) => c.put(req, copy));
+            }
+            return res;
+          })
+          .catch(() => caches.match(req))
+      );
+      return;
+    }
+
+    // Everything else: stale-while-revalidate.
     event.respondWith(
       caches.match(req).then((cached) => {
         const networkFetch = fetch(req)

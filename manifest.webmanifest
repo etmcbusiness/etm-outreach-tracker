@@ -1,24 +1,24 @@
 {
   "name": "ETM Outreach",
   "short_name": "ETM Outreach",
-  "description": "Track daily emails, DMs, and video uploads with a CRT-style tally + session timer.",
+  "description": "Track daily emails, DMs, and video uploads with a clean tally + session timer.",
   "id": "/etm-tracker",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#000800",
-  "theme_color": "#000800",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "categories": ["productivity", "utilities"],
   "icons": [
     {
-      "src": "icon.png?v=7",
+      "src": "icon.png?v=8",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icon.png?v=7",
+      "src": "icon.png?v=8",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

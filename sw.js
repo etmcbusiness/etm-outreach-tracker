@@ -4,13 +4,14 @@
 //   - Other assets        -> stale-while-revalidate (fast + auto-updating)
 // Bump CACHE_NAME on every shipping change so old caches are purged.
 
-const CACHE_NAME = "etm-tracker-v7";
-const ICON_ASSET = "./icon.png?v=7";
+const CACHE_NAME = "etm-tracker-v14";
+const ICON_ASSET = "./icon.png?v=8";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
   "./icon.svg",
+  "./logo-horizontal.png",
   ICON_ASSET,
 ];
 
@@ -66,7 +67,9 @@ self.addEventListener("fetch", (event) => {
     const path = url.pathname;
     const isIcon =
       path.endsWith("/icon.png") ||
-      path.endsWith("/icon.svg");
+      path.endsWith("/icon.svg") ||
+      path.endsWith("/logo-horizontal.png") ||
+      path.endsWith("/icon-white.png");
     const isManifest = path.endsWith("/manifest.webmanifest");
 
     // Favicon / launcher art / manifest: network-first so updates are not stuck

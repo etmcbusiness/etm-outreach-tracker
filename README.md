@@ -1,6 +1,6 @@
 # ETM Outreach Tracker
 
-A retro CRT-styled daily outreach tracker (Email / DM / Video Upload) with a session timer, daily tally, persistent session history, and per-tracker analytics. Installable as a PWA on iOS & Android.
+A clean, modern daily outreach tracker (Email / DM / Video Upload) styled to match the ETM brand — light theme, sky-blue accents, bold rounded typography. Includes a session timer, daily tally, persistent session history, and per-tracker analytics. Installable as a PWA on iOS & Android.
 
 ## Features
 
@@ -43,6 +43,8 @@ The icon used is `icon.png` (replace it to change the home-screen icon).
 | `sw.js` | Service worker (offline app shell) |
 | `icon.png` | Primary launcher icon (512x512) |
 | `icon.svg` | Vector fallback / mask icon |
+| `logo-horizontal.png` | ETM horizontal logo shown above the page title |
+| `icon-white.png` | White-on-transparent icon variant for dark backgrounds |
 
 ## License
 

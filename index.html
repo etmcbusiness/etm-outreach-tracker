@@ -10,30 +10,57 @@
 
   <!-- PWA -->
   <link rel="manifest" href="manifest.webmanifest" />
-  <meta name="theme-color" content="#000800" />
-  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="color-scheme" content="light" />
   <meta name="application-name" content="ETM Outreach" />
 
   <!-- iOS home-screen / standalone-app behavior -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="ETM Outreach" />
   <meta name="format-detection" content="telephone=no" />
 
   <!-- Icons (?v= bumps caches — SW + browsers hang onto favicons aggressively) -->
-  <link rel="icon" type="image/png" href="icon.png?v=7" />
-  <link rel="apple-touch-icon" href="icon.png?v=7" />
-  <link rel="apple-touch-icon" sizes="180x180" href="icon.png?v=7" />
-  <style>
-    @import url("https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap");
+  <link rel="icon" type="image/png" href="icon.png?v=8" />
+  <link rel="apple-touch-icon" href="icon.png?v=8" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icon.png?v=8" />
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
     :root {
-      --green: #33ff33;
-      --green-dim: #1a8c1a;
-      --green-glow: #33ff3380;
-      --bg: #000800;
-      --scanline: rgba(0, 0, 0, 0.25);
+      /* ===== ETM brand palette (matches ETM Checklist app) ===== */
+      --bg: #ffffff;
+      --bg-soft: #f7fafc;
+      --ink: #0a0a0a;
+      --ink-soft: #6b7280;
+      --ink-faint: #9ca3af;
+
+      --blue: #5dbce9;          /* primary light blue */
+      --blue-soft: #b9deef;     /* border blue */
+      --blue-tint: #eaf6fc;     /* very light blue background */
+      --blue-strong: #2596d4;   /* hover / active */
+
+      --danger: #ef4444;
+      --warn: #f59e0b;
+      --success: #10b981;
+
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-pill: 999px;
+
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 4px 14px rgba(93, 188, 233, 0.10), 0 1px 2px rgba(15, 23, 42, 0.04);
+      --shadow-lg: 0 10px 30px rgba(93, 188, 233, 0.15), 0 2px 6px rgba(15, 23, 42, 0.05);
+
+      --border: 1.5px solid var(--blue-soft);
     }
 
     * {
@@ -45,66 +72,28 @@
     html, body {
       min-height: 100%;
       background: var(--bg);
-      color: var(--green);
-      font-family: "Share Tech Mono", "VT323", "Courier New", monospace;
-      overflow-x: hidden;
+      color: var(--ink);
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      font-feature-settings: "ss01", "cv11";
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
+      overflow-x: hidden;
     }
 
     body {
       padding: 24px;
-      text-shadow:
-        0 0 1px var(--green),
-        0 0 3px var(--green-glow);
-      animation: flicker 3s infinite;
       position: relative;
+      line-height: 1.4;
     }
 
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background: repeating-linear-gradient(
-        to bottom,
-        transparent 0px,
-        transparent 3px,
-        rgba(0, 0, 0, 0.18) 4px,
-        rgba(0, 0, 0, 0.18) 4px
-      );
-      pointer-events: none;
-      z-index: 5;
-      opacity: 0.7;
-    }
-
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(
-        ellipse at center,
-        transparent 60%,
-        rgba(0, 0, 0, 0.5) 100%
-      );
-      pointer-events: none;
-      z-index: 6;
-    }
-
-    @keyframes flicker {
-      0%, 100% { opacity: 1; }
-      96% { opacity: 1; }
-      97% { opacity: 0.85; }
-      98% { opacity: 1; }
-      99% { opacity: 0.92; }
-    }
-
+    /* ===== Card primitive (replaces the .crt class) ===== */
     .crt {
-      border: 2px solid var(--green);
-      padding: 12px 18px;
-      box-shadow:
-        0 0 8px var(--green-glow),
-        inset 0 0 8px var(--green-glow);
+      background: var(--bg);
+      border: var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      box-shadow: var(--shadow-md);
     }
 
     /* ===== Page toggle button (top left) ===== */
@@ -113,16 +102,33 @@
       top: 24px;
       left: 24px;
       z-index: 30;
-      padding: 12px 22px;
-      font-size: 1.1rem;
-      letter-spacing: 3px;
-      box-shadow:
-        0 0 8px var(--green-glow),
-        inset 0 0 8px var(--green-glow);
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      letter-spacing: 0.3px;
+      font-weight: 600;
+      border-radius: var(--radius-pill);
+      background: var(--bg);
+      color: var(--ink);
+      border: var(--border);
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s, color 0.15s, transform 0.05s, box-shadow 0.15s;
     }
 
-    .page-toggle::before {
-      content: "> ";
+    .page-toggle.is-back::before {
+      content: "← ";
+      color: var(--blue-strong);
+      font-weight: 700;
+    }
+
+    .page-toggle:hover {
+      background: var(--blue-tint);
+      box-shadow: var(--shadow-md);
+    }
+
+    .page-toggle:active {
+      transform: translateY(1px);
     }
 
     /* ===== Top-right stack: timer + daily totals ===== */
@@ -134,101 +140,96 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
-      min-width: 240px;
+      min-width: 260px;
     }
 
     .timer-container {
       display: flex;
       flex-direction: column;
       align-items: stretch;
-      gap: 10px;
-      min-width: 240px;
+      gap: 12px;
+      min-width: 260px;
     }
 
     .daily-totals {
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      padding: 12px 16px;
+      gap: 6px;
+      padding: 16px 20px;
     }
 
-    .daily-label {
-      font-size: 0.95rem;
-      letter-spacing: 2px;
+    .daily-label,
+    .timer-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 2.4px;
       text-align: center;
-      color: var(--green-dim);
-      border-bottom: 1px dashed var(--green-dim);
-      padding-bottom: 4px;
+      text-transform: uppercase;
+      color: var(--blue-strong);
+      padding-bottom: 8px;
+      border-bottom: 1px dashed var(--blue-soft);
       margin-bottom: 4px;
     }
 
     .daily-row {
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
-      font-size: 1rem;
-      letter-spacing: 1.5px;
-      padding: 3px 2px;
+      align-items: center;
+      font-size: 0.95rem;
+      letter-spacing: 0.2px;
+      padding: 4px 2px;
       gap: 14px;
+      border-radius: 8px;
+      transition: background 0.15s;
     }
 
     .daily-row .name {
-      color: var(--green-dim);
-      text-shadow: 0 0 2px var(--green-dim);
+      color: var(--ink-soft);
+      font-weight: 500;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      letter-spacing: 1.2px;
     }
 
     .daily-row .daily-num {
-      font-weight: bold;
-      font-size: 1.5rem;
-      color: var(--green);
-      text-shadow:
-        0 0 1px var(--green),
-        0 0 4px var(--green-glow);
+      font-weight: 700;
+      font-size: 1.4rem;
+      color: var(--ink);
       min-width: 36px;
       text-align: right;
+      font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .daily-row.active {
+      background: var(--blue-tint);
+      padding-left: 10px;
+      padding-right: 10px;
     }
 
     .daily-row.active .name {
-      color: var(--green);
-      text-shadow:
-        0 0 1px var(--green),
-        0 0 4px var(--green-glow);
-    }
-
-    .daily-row.active::before {
-      content: ">";
-      color: var(--green);
-      margin-right: -10px;
-      text-shadow:
-        0 0 1px var(--green),
-        0 0 4px var(--green-glow);
-    }
-
-    .timer-label {
-      font-size: 1.1rem;
-      letter-spacing: 2px;
-      text-align: center;
-      border-bottom: 1px dashed var(--green-dim);
-      padding-bottom: 4px;
+      color: var(--blue-strong);
+      font-weight: 700;
     }
 
     .timer-display {
-      font-size: 2.4rem;
-      font-weight: bold;
-      letter-spacing: 3px;
+      font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: 1px;
       text-align: center;
-      text-shadow:
-        0 0 1px var(--green),
-        0 0 4px var(--green-glow);
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
     }
 
     .timer-display .ms {
-      font-size: 1.4rem;
-      letter-spacing: 2px;
-      color: var(--green-dim);
-      text-shadow: 0 0 2px var(--green-dim);
-      margin-left: 4px;
-      vertical-align: 4px;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: var(--blue);
+      margin-left: 2px;
+      vertical-align: 2px;
     }
 
     .timer-buttons,
@@ -240,104 +241,141 @@
 
     .tally-pm {
       display: flex;
-      gap: 40px;
+      gap: 32px;
       justify-content: center;
     }
 
+    /* ===== Buttons ===== */
     button {
-      background: transparent;
-      color: var(--green);
-      border: 2px solid var(--green);
-      padding: 6px 14px;
+      background: var(--bg);
+      color: var(--ink);
+      border: var(--border);
+      padding: 8px 16px;
       font-family: inherit;
-      font-size: 1.1rem;
-      letter-spacing: 1px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
       cursor: pointer;
-      text-transform: uppercase;
-      text-shadow: inherit;
-      transition: background 0.08s, color 0.08s, box-shadow 0.08s;
+      border-radius: var(--radius-pill);
+      transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.05s;
     }
 
     button:hover {
-      background: var(--green);
-      color: var(--bg);
-      text-shadow: none;
-      box-shadow: 0 0 12px var(--green-glow);
+      background: var(--blue-tint);
+      border-color: var(--blue);
+      box-shadow: var(--shadow-sm);
     }
 
     button:active {
-      background: var(--green-dim);
-      color: var(--bg);
+      transform: translateY(1px);
     }
 
+    .timer-buttons button {
+      flex: 1;
+      padding: 8px 10px;
+      font-size: 0.82rem;
+    }
+
+    /* ===== Main layout ===== */
     .main {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       min-height: 100vh;
       gap: 28px;
-      padding-top: 40px;
+      padding-top: 80px;
     }
 
+    /* ===== Header ===== */
     .header {
       text-align: center;
-      letter-spacing: 3px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
     }
 
+    .brand-logo {
+      height: 64px;
+      width: auto;
+      object-fit: contain;
+      margin-bottom: 4px;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    h1 {
+      font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+      font-size: 3.2rem;
+      font-weight: 800;
+      letter-spacing: -1.2px;
+      line-height: 1.05;
+      color: var(--ink);
+      margin: 0;
+    }
+
+    .header .subtitle {
+      font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      color: var(--blue);
+      line-height: 1.1;
+    }
+
+    /* old decorative lines collapse to nothing */
     .header .top-line,
     .header .bot-line {
-      height: 2px;
-      width: 520px;
-      max-width: 90vw;
-      margin: 8px auto;
-      background: linear-gradient(
-        to right,
-        transparent 0%,
-        var(--green) 25%,
-        var(--green) 75%,
-        transparent 100%
-      );
-      box-shadow: 0 0 6px var(--green-glow);
-      border: none;
+      display: none;
     }
 
-    .header .bot-line {
-      margin-bottom: 30px;
+    .blink {
+      animation: blink 1.2s steps(2, start) infinite;
     }
 
-    /* ===== Tracker tabs (switch between Email / DM / Video Upload) ===== */
+    @keyframes blink {
+      to { opacity: 0; }
+    }
+
+    /* ===== Tracker tabs ===== */
     .tracker-tabs {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
       justify-content: center;
-      margin: -10px 0 24px;
+      margin: -8px 0 20px;
+      padding: 6px;
+      background: var(--bg-soft);
+      border-radius: var(--radius-pill);
+      border: 1px solid #eef2f7;
     }
 
     .tracker-tab {
-      padding: 8px 18px;
-      font-size: 0.95rem;
-      letter-spacing: 2px;
-      border: 2px solid var(--green-dim);
-      color: var(--green-dim);
+      padding: 9px 18px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      border: 1.5px solid transparent;
+      color: var(--ink-soft);
+      background: transparent;
+      border-radius: var(--radius-pill);
       box-shadow: none;
-      text-shadow: 0 0 2px var(--green-dim);
     }
 
     .tracker-tab:hover {
-      border-color: var(--green);
-      color: var(--bg);
-      background: var(--green);
-      text-shadow: none;
+      color: var(--blue-strong);
+      background: var(--blue-tint);
+      border-color: transparent;
+      box-shadow: none;
     }
 
     .tracker-tab.active {
-      border-color: var(--green);
-      color: var(--bg);
-      background: var(--green);
-      text-shadow: none;
-      box-shadow: 0 0 12px var(--green-glow);
+      color: var(--ink);
+      background: var(--bg);
+      border-color: var(--blue-soft);
+      box-shadow: var(--shadow-sm);
     }
 
     body.analytics-mode .tracker-tabs {
@@ -345,134 +383,155 @@
     }
 
     body.analytics-mode .tracker-tab {
-      padding: 6px 14px;
-      font-size: 0.85rem;
-    }
-
-    h1 {
-      font-size: 3rem;
-      letter-spacing: 8px;
-      font-weight: bold;
-      margin: 4px 0;
-      text-shadow:
-        0 0 1px var(--green),
-        0 0 4px var(--green-glow);
-    }
-
-    .header .subtitle {
-      font-size: 1.4rem;
-      letter-spacing: 4px;
-      color: var(--green);
-      margin-bottom: 30px;
-    }
-
-    .blink {
-      animation: blink 1s steps(2, start) infinite;
-    }
-
-    @keyframes blink {
-      to { visibility: hidden; }
+      padding: 7px 14px;
+      font-size: 0.78rem;
     }
 
     /* ===== Tracker view ===== */
     .tally-container {
-      padding: 70px 120px;
+      padding: 56px 80px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 50px;
-      min-width: 760px;
+      gap: 36px;
+      min-width: 520px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
     }
 
     .tally-label {
-      font-size: 1.6rem;
-      letter-spacing: 6px;
-      color: var(--green-dim);
-      text-shadow: 0 0 2px var(--green-dim);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--blue-strong);
     }
 
     .tally-count {
-      font-size: 14rem;
-      letter-spacing: 10px;
+      font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+      font-size: 11rem;
+      font-weight: 800;
+      letter-spacing: -6px;
       line-height: 1;
       text-align: center;
-      min-width: 480px;
-      font-weight: bold;
-      text-shadow:
-        0 0 2px var(--green),
-        0 0 6px var(--green-glow);
-      animation: crt-blink 1.59s steps(2, start) infinite;
-    }
-
-    @keyframes crt-blink {
-      0%, 55% { opacity: 1; }
-      56%, 100% { opacity: 0.15; }
+      min-width: 380px;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
     }
 
     .tally-pm button {
-      width: 160px;
-      height: 160px;
-      font-size: 5rem;
+      width: 130px;
+      height: 130px;
+      font-size: 4rem;
+      font-weight: 600;
       padding: 0;
       line-height: 1;
+      border-radius: 50%;
+      background: var(--bg);
+      color: var(--blue-strong);
+      border: 2px solid var(--blue-soft);
+      box-shadow: var(--shadow-md);
+      transition: background 0.15s, color 0.15s, transform 0.08s, box-shadow 0.15s;
+    }
+
+    .tally-pm button:hover {
+      background: var(--blue-tint);
+      border-color: var(--blue);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .tally-pm button:active {
+      transform: translateY(2px) scale(0.97);
+      background: var(--blue);
+      color: var(--bg);
+    }
+
+    #plusBtn {
+      background: var(--blue);
+      color: var(--bg);
+      border-color: var(--blue);
+    }
+
+    #plusBtn:hover {
+      background: var(--blue-strong);
+      border-color: var(--blue-strong);
+      color: var(--bg);
+    }
+
+    #plusBtn:active {
+      background: var(--blue-strong);
     }
 
     #resetTallyBtn {
       padding: 14px 36px;
-      font-size: 1.3rem;
-      letter-spacing: 3px;
-      margin-top: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      margin-top: 4px;
+      background: var(--blue);
+      color: var(--bg);
+      border-color: var(--blue);
+      border-radius: var(--radius-md);
+      min-width: 240px;
+    }
+
+    #resetTallyBtn:hover {
+      background: var(--blue-strong);
+      border-color: var(--blue-strong);
+      box-shadow: var(--shadow-md);
     }
 
     .email-select-wrap {
       display: flex;
       align-items: center;
-      gap: 18px;
-      padding: 16px 28px;
+      gap: 16px;
+      padding: 14px 24px;
+      border-radius: var(--radius-md);
     }
 
     .email-select-label {
-      font-size: 1.1rem;
-      letter-spacing: 3px;
-      color: var(--green-dim);
-      text-shadow: 0 0 2px var(--green-dim);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--blue-strong);
     }
 
     .email-select {
       background: var(--bg);
-      color: var(--green);
-      border: 2px solid var(--green);
+      color: var(--ink);
+      border: 1.5px solid var(--blue-soft);
       font-family: inherit;
-      font-size: 1.05rem;
-      letter-spacing: 1px;
-      padding: 8px 36px 8px 14px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+      padding: 10px 36px 10px 16px;
       cursor: pointer;
-      text-shadow: inherit;
-      box-shadow: inset 0 0 6px var(--green-glow);
+      border-radius: var(--radius-md);
       appearance: none;
       -webkit-appearance: none;
       -moz-appearance: none;
       background-image:
-        linear-gradient(45deg, transparent 50%, var(--green) 50%),
-        linear-gradient(135deg, var(--green) 50%, transparent 50%);
+        linear-gradient(45deg, transparent 50%, var(--blue-strong) 50%),
+        linear-gradient(135deg, var(--blue-strong) 50%, transparent 50%);
       background-position:
         calc(100% - 18px) 55%,
-        calc(100% - 12px) 55%;
-      background-size: 6px 6px, 6px 6px;
+        calc(100% - 13px) 55%;
+      background-size: 5px 5px, 5px 5px;
       background-repeat: no-repeat;
       min-width: 280px;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
 
     .email-select:focus {
       outline: none;
-      box-shadow:
-        0 0 10px var(--green-glow),
-        inset 0 0 6px var(--green-glow);
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(93, 188, 233, 0.2);
     }
 
     .email-select option {
       background: var(--bg);
-      color: var(--green);
+      color: var(--ink);
     }
 
     /* ===== Analytics view ===== */
@@ -482,7 +541,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 24px;
+      gap: 20px;
     }
 
     .view.hidden {
@@ -510,29 +569,26 @@
       width: 100%;
     }
 
-    /* Compact layout when viewing analytics so it fits without scroll */
     body.analytics-mode .main {
-      padding-top: 16px;
-      gap: 12px;
+      padding-top: 60px;
+      gap: 14px;
       min-height: 100vh;
       justify-content: flex-start;
     }
 
     body.analytics-mode .header h1 {
-      font-size: 1.8rem;
-      letter-spacing: 6px;
+      font-size: 2rem;
+      letter-spacing: -0.6px;
       margin: 0;
+    }
+
+    body.analytics-mode .brand-logo {
+      height: 44px;
     }
 
     body.analytics-mode .header .subtitle {
       font-size: 1rem;
-      letter-spacing: 3px;
-      margin-bottom: 10px;
-    }
-
-    body.analytics-mode .header .bot-line {
-      margin: 4px auto 14px;
-      width: 380px;
+      margin-bottom: 6px;
     }
 
     body.analytics-mode .timer-container {
@@ -540,56 +596,62 @@
     }
 
     body.analytics-mode .top-right-stack {
-      top: 16px;
+      top: 24px;
     }
 
     .stat-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
+      gap: 14px;
       width: 100%;
     }
 
     .stat-card {
-      padding: 14px 18px;
+      padding: 18px 22px;
       display: flex;
       flex-direction: column;
       gap: 6px;
       align-items: center;
       text-align: center;
+      border-radius: var(--radius-md);
     }
 
     .stat-label {
-      font-size: 0.85rem;
-      letter-spacing: 2px;
-      color: var(--green-dim);
-      text-shadow: 0 0 2px var(--green-dim);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: var(--ink-soft);
     }
 
     .stat-value {
+      font-family: "Plus Jakarta Sans", "Inter", sans-serif;
       font-size: 2.4rem;
-      font-weight: bold;
-      letter-spacing: 3px;
+      font-weight: 800;
+      letter-spacing: -1px;
       line-height: 1;
-      text-shadow:
-        0 0 1px var(--green),
-        0 0 4px var(--green-glow);
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
     }
 
     .session-table-wrap {
       width: 100%;
-      padding: 14px 18px;
+      padding: 16px 18px;
       display: flex;
       flex-direction: column;
       min-height: 0;
+      border-radius: var(--radius-md);
     }
 
-    .session-table-title {
-      font-size: 1rem;
-      letter-spacing: 3px;
-      color: var(--green-dim);
-      border-bottom: 1px dashed var(--green-dim);
-      padding-bottom: 6px;
+    .session-table-title,
+    .chart-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 2.4px;
+      text-transform: uppercase;
+      color: var(--blue-strong);
+      border-bottom: 1px dashed var(--blue-soft);
+      padding-bottom: 8px;
       margin-bottom: 8px;
       flex: 0 0 auto;
     }
@@ -599,14 +661,15 @@
       flex: 1 1 auto;
       max-height: 280px;
       scrollbar-width: thin;
-      scrollbar-color: var(--green-dim) transparent;
+      scrollbar-color: var(--blue-soft) transparent;
     }
 
     .table-scroll::-webkit-scrollbar {
       width: 8px;
     }
     .table-scroll::-webkit-scrollbar-thumb {
-      background: var(--green-dim);
+      background: var(--blue-soft);
+      border-radius: 4px;
     }
     .table-scroll::-webkit-scrollbar-track {
       background: transparent;
@@ -615,43 +678,108 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.95rem;
-      letter-spacing: 1px;
+      font-size: 0.92rem;
+      font-variant-numeric: tabular-nums;
     }
 
     th, td {
       text-align: left;
-      padding: 7px 10px;
-      border-bottom: 1px dashed rgba(51, 255, 51, 0.25);
+      padding: 10px 12px;
+      border-bottom: 1px solid #eef2f7;
     }
 
     thead th {
       position: sticky;
       top: 0;
       background: var(--bg);
+      z-index: 1;
     }
 
     th {
-      color: var(--green-dim);
-      letter-spacing: 2px;
-      font-weight: normal;
+      color: var(--ink-soft);
+      letter-spacing: 1.2px;
+      font-weight: 600;
+      font-size: 0.68rem;
       text-transform: uppercase;
+      border-bottom: 1.5px solid var(--blue-soft);
+    }
+
+    td {
+      color: var(--ink);
+      font-weight: 500;
     }
 
     tr:last-child td {
       border-bottom: none;
     }
 
-    .empty-state {
+    tbody tr:hover {
+      background: var(--blue-tint);
+    }
+
+    /* ===== Row action buttons (edit / delete in session log) ===== */
+    .row-actions {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .row-action {
+      background: var(--bg);
+      border: 1.5px solid var(--blue-soft);
+      color: var(--blue-strong);
+      width: 30px;
+      height: 30px;
+      min-height: 30px;
+      padding: 0;
+      border-radius: 50%;
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .row-action:hover {
+      background: var(--blue-tint);
+      border-color: var(--blue);
+      color: var(--blue-strong);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .row-action.delete {
+      border-color: #fecaca;
+      color: var(--danger);
+    }
+
+    .row-action.delete:hover {
+      background: #fef2f2;
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    th.actions-col,
+    td.actions-col {
+      text-align: right;
+      width: 90px;
+      white-space: nowrap;
+    }
+
+    .empty-state,
+    .chart-empty {
       text-align: center;
-      color: var(--green-dim);
-      padding: 30px 12px;
-      letter-spacing: 2px;
+      color: var(--ink-soft);
+      padding: 36px 12px;
+      letter-spacing: 0.2px;
+      font-size: 0.95rem;
     }
 
     .analytics-actions {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       justify-content: center;
       align-items: center;
       flex-wrap: wrap;
@@ -662,12 +790,13 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 14px;
-      border: 1px dashed var(--green-dim);
-      color: var(--green-dim);
-      font-size: 0.9rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
+      padding: 9px 16px;
+      border-radius: var(--radius-pill);
+      border: 1.5px dashed var(--ink-faint);
+      color: var(--ink-soft);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.4px;
       max-width: 420px;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -675,15 +804,15 @@
     }
 
     .storage-status.connected {
-      color: var(--green);
-      border-color: var(--green);
+      color: var(--blue-strong);
+      border-color: var(--blue);
       border-style: solid;
-      box-shadow: 0 0 6px var(--green-glow);
+      background: var(--blue-tint);
     }
 
     .storage-status.warn {
-      color: #ffaa33;
-      border-color: #ffaa33;
+      color: var(--warn);
+      border-color: var(--warn);
     }
 
     .storage-status .dot {
@@ -691,27 +820,27 @@
       height: 8px;
       border-radius: 50%;
       background: currentColor;
-      box-shadow: 0 0 4px currentColor;
       flex-shrink: 0;
     }
 
     .danger {
-      border-color: #ff5555;
-      color: #ff5555;
+      border-color: var(--danger);
+      color: var(--danger);
     }
 
     .danger:hover {
-      background: #ff5555;
+      background: var(--danger);
       color: var(--bg);
-      box-shadow: 0 0 12px rgba(255, 85, 85, 0.5);
+      border-color: var(--danger);
     }
 
     /* ===== Chart ===== */
     .chart-wrap {
       width: 100%;
-      padding: 14px 18px 12px;
+      padding: 16px 20px 14px;
       display: flex;
       flex-direction: column;
+      border-radius: var(--radius-md);
     }
 
     .chart-header {
@@ -720,39 +849,41 @@
       align-items: center;
       gap: 12px;
       flex-wrap: wrap;
-      border-bottom: 1px dashed var(--green-dim);
-      padding-bottom: 6px;
+      border-bottom: 1px dashed var(--blue-soft);
+      padding-bottom: 8px;
       margin-bottom: 8px;
     }
 
-    .chart-title {
-      font-size: 1rem;
-      letter-spacing: 3px;
-      color: var(--green-dim);
+    .chart-header .chart-title {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0;
     }
 
     .chart-legend {
       display: flex;
       gap: 14px;
-      font-size: 0.85rem;
-      letter-spacing: 1px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
     }
 
     .legend-item {
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      color: var(--ink-soft);
     }
 
     .legend-swatch {
       display: inline-block;
       width: 22px;
       height: 3px;
-      box-shadow: 0 0 4px currentColor;
+      border-radius: 2px;
     }
 
-    .legend-emails { color: var(--green); }
-    .legend-time { color: #ffaa33; text-shadow: 0 0 2px #ffaa3380; }
+    .legend-emails { color: var(--blue-strong); }
+    .legend-time   { color: var(--warn); }
 
     .chart-svg {
       width: 100%;
@@ -760,88 +891,405 @@
       display: block;
     }
 
-    .chart-empty {
-      text-align: center;
-      color: var(--green-dim);
-      padding: 30px 12px;
-      letter-spacing: 2px;
-    }
-
     .chart-svg .grid-line {
-      stroke: var(--green-dim);
+      stroke: #e5e7eb;
       stroke-width: 1;
       stroke-dasharray: 3 4;
-      opacity: 0.45;
     }
 
     .chart-svg .axis-line {
-      stroke: var(--green-dim);
+      stroke: #cbd5e1;
       stroke-width: 1.2;
     }
 
     .chart-svg .axis-label {
-      fill: var(--green-dim);
-      font-family: "Share Tech Mono", monospace;
-      font-size: 12px;
-      letter-spacing: 1px;
+      fill: var(--ink-soft);
+      font-family: "Inter", sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
     }
 
     .chart-svg .axis-label.right {
-      fill: #ffaa33;
+      fill: var(--warn);
     }
 
     .chart-svg .x-label {
-      fill: var(--green-dim);
-      font-family: "Share Tech Mono", monospace;
-      font-size: 11px;
+      fill: var(--ink-soft);
+      font-family: "Inter", sans-serif;
+      font-size: 10px;
+      font-weight: 500;
     }
 
     .chart-svg .line-emails {
       fill: none;
-      stroke: var(--green);
-      stroke-width: 2;
-      filter: drop-shadow(0 0 3px var(--green-glow));
+      stroke: var(--blue);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     .chart-svg .line-time {
       fill: none;
-      stroke: #ffaa33;
-      stroke-width: 2;
-      filter: drop-shadow(0 0 3px #ffaa3380);
+      stroke: var(--warn);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 4 3;
     }
 
     .chart-svg .dot-emails {
-      fill: var(--green);
-      filter: drop-shadow(0 0 3px var(--green-glow));
+      fill: var(--blue);
+      stroke: var(--bg);
+      stroke-width: 2;
     }
 
     .chart-svg .dot-time {
-      fill: #ffaa33;
-      filter: drop-shadow(0 0 3px #ffaa3380);
+      fill: var(--warn);
+      stroke: var(--bg);
+      stroke-width: 2;
     }
 
     .footer {
       position: fixed;
-      bottom: 12px;
+      bottom: 14px;
       left: 24px;
-      font-size: 0.95rem;
-      color: var(--green-dim);
-      text-shadow: 0 0 2px var(--green-dim);
-      letter-spacing: 2px;
+      font-size: 0.72rem;
+      color: var(--ink-faint);
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      font-weight: 600;
       z-index: 10;
+    }
+
+    /* ===== Update App button (fixed bottom-center) ===== */
+    .update-app-btn {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 30;
+      padding: 11px 22px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      border-radius: var(--radius-pill);
+      background: var(--bg);
+      color: var(--blue-strong);
+      border: 1.5px solid var(--blue);
+      box-shadow: var(--shadow-md);
+      cursor: pointer;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s, color 0.15s, box-shadow 0.15s, transform 0.05s;
+    }
+
+    .update-app-btn::before {
+      content: "↻";
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .update-app-btn:hover {
+      background: var(--blue-tint);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .update-app-btn:active {
+      transform: translateX(-50%) translateY(1px);
+    }
+
+    /* ===== Modal ===== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      background: var(--bg);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
+      overflow: hidden;
+      transform: translateY(8px) scale(0.98);
+      transition: transform 0.18s ease;
+    }
+
+    .modal-backdrop.open .modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 22px 16px;
+      border-bottom: 1px solid #eef2f7;
+    }
+
+    .modal-title {
+      font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      color: var(--ink);
+    }
+
+    .modal-close {
+      background: var(--bg-soft);
+      color: var(--ink-soft);
+      border: 1px solid #e5e7eb;
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      font-weight: 600;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .modal-close:hover {
+      background: #eef2f7;
+      color: var(--ink);
+      border-color: #e5e7eb;
+      box-shadow: none;
+    }
+
+    .modal-body {
+      padding: 18px 22px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .modal-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .modal-btn {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      cursor: pointer;
+      font-family: inherit;
+      background: var(--bg);
+      transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s, transform 0.05s;
+    }
+
+    .modal-btn-save {
+      color: var(--blue-strong);
+      border: 1.5px solid var(--blue);
+    }
+
+    .modal-btn-save:hover {
+      background: var(--blue-tint);
+      border-color: var(--blue);
+      color: var(--blue-strong);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .modal-btn-replace {
+      color: var(--danger);
+      border: 1.5px solid var(--danger);
+    }
+
+    .modal-btn-replace:hover {
+      background: #fef2f2;
+      border-color: var(--danger);
+      color: var(--danger);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .modal-btn-refresh {
+      color: var(--ink);
+      border: 1.5px dashed #cbd5e1;
+      background: var(--bg);
+    }
+
+    .modal-btn-refresh:hover {
+      background: var(--bg-soft);
+      border-color: var(--ink-soft);
+      box-shadow: none;
+    }
+
+    .modal-info {
+      background: var(--bg-soft);
+      border: 1px solid #eef2f7;
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      color: var(--ink-soft);
+      font-size: 0.82rem;
+      line-height: 1.55;
+      text-align: center;
+      position: relative;
+    }
+
+    .modal-info::before {
+      content: "";
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 36px;
+      height: 3px;
+      border-radius: 2px;
+      background: linear-gradient(90deg, transparent, var(--blue), transparent);
+    }
+
+    .modal-info b {
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    /* ===== Edit Session form (inside the edit modal) ===== */
+    .modal-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: var(--blue-strong);
+    }
+
+    .form-input,
+    .form-select {
+      background: var(--bg);
+      color: var(--ink);
+      border: 1.5px solid var(--blue-soft);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      width: 100%;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .form-select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      cursor: pointer;
+      padding-right: 36px;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--blue-strong) 50%),
+        linear-gradient(135deg, var(--blue-strong) 50%, transparent 50%);
+      background-position:
+        calc(100% - 18px) 55%,
+        calc(100% - 13px) 55%;
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(93, 188, 233, 0.2);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    .modal-footer .footer-spacer {
+      flex: 1 1 auto;
+    }
+
+    .modal-btn-cancel {
+      color: var(--ink-soft);
+      border: 1.5px solid #e5e7eb;
+      background: var(--bg);
+    }
+
+    .modal-btn-cancel:hover {
+      background: var(--bg-soft);
+      border-color: var(--ink-soft);
+      color: var(--ink);
+      box-shadow: none;
+    }
+
+    .modal-btn-confirm {
+      color: var(--bg);
+      background: var(--blue);
+      border: 1.5px solid var(--blue);
+    }
+
+    .modal-btn-confirm:hover {
+      background: var(--blue-strong);
+      border-color: var(--blue-strong);
+      color: var(--bg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .modal-btn-delete {
+      color: var(--danger);
+      border: 1.5px solid #fecaca;
+      background: var(--bg);
+    }
+
+    .modal-btn-delete:hover {
+      background: #fef2f2;
+      border-color: var(--danger);
+      color: var(--danger);
+      box-shadow: var(--shadow-sm);
     }
 
     /* ==========================================================
        MOBILE / RESPONSIVE LAYOUT
-       Two breakpoints:
-         - <= 900px  (tablet / large phone landscape)
-         - <= 600px  (phone portrait)
-         - <= 380px  (very small phones)
-       Goals: nothing overlaps, every tap target >= 44px,
-       respects iOS notches via env(safe-area-inset-*).
        ========================================================== */
 
-    /* Respect iOS notches at all sizes */
     @supports (padding: max(0px)) {
       body {
         padding-top: max(24px, env(safe-area-inset-top));
@@ -862,54 +1310,45 @@
 
       .top-right-stack {
         min-width: 0;
-        width: 200px;
+        width: 220px;
       }
 
       .timer-display {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
       }
 
       .timer-display .ms {
-        font-size: 1.05rem;
+        font-size: 0.9rem;
       }
 
       .main {
         padding-top: 80px;
       }
 
+      .brand-logo {
+        height: 52px;
+      }
+
       h1 {
-        font-size: 2.2rem;
-        letter-spacing: 5px;
+        font-size: 2.4rem;
       }
 
       .header .subtitle {
-        font-size: 1.1rem;
-        letter-spacing: 3px;
-        margin-bottom: 18px;
-      }
-
-      .header .top-line,
-      .header .bot-line {
-        width: 100%;
-        max-width: 96vw;
-      }
-
-      .header .bot-line {
-        margin-bottom: 18px;
+        font-size: 1.2rem;
       }
 
       .tally-container {
         padding: 36px 28px;
-        gap: 32px;
+        gap: 28px;
         min-width: 0;
         width: 100%;
         max-width: 600px;
       }
 
       .tally-count {
-        font-size: 9rem;
+        font-size: 8rem;
         min-width: 0;
-        letter-spacing: 6px;
+        letter-spacing: -4px;
       }
 
       .tally-pm {
@@ -917,9 +1356,9 @@
       }
 
       .tally-pm button {
-        width: 120px;
-        height: 120px;
-        font-size: 4rem;
+        width: 110px;
+        height: 110px;
+        font-size: 3.4rem;
       }
 
       .stat-grid {
@@ -928,17 +1367,16 @@
       }
 
       .stat-card {
-        padding: 10px 8px;
+        padding: 12px 10px;
       }
 
       .stat-value {
         font-size: 1.8rem;
-        letter-spacing: 2px;
       }
 
       .stat-label {
-        font-size: 0.75rem;
-        letter-spacing: 1.5px;
+        font-size: 0.66rem;
+        letter-spacing: 1px;
       }
 
       .analytics-bottom {
@@ -962,21 +1400,15 @@
         min-height: 100vh;
       }
 
-      /* ===========================================================
-         CRITICAL: on phones, take the page-toggle and the timer +
-         daily-totals stack OUT of fixed positioning and put them in
-         the normal document flow at the top of the page. This is
-         what fixes the "jumbled" + "overlapping analytics" issue.
-         =========================================================== */
+      /* Take page-toggle and top-right stack out of fixed positioning on phones */
       .page-toggle {
         position: relative;
         top: auto;
         left: auto;
         align-self: flex-start;
         margin: 0 0 10px;
-        padding: 10px 14px;
-        font-size: 0.85rem;
-        letter-spacing: 2px;
+        padding: 9px 16px;
+        font-size: 0.82rem;
         z-index: 20;
       }
 
@@ -997,33 +1429,32 @@
       .timer-container {
         flex: 1 1 0;
         min-width: 0;
-        gap: 6px;
-        padding: 8px 10px;
+        gap: 8px;
+        padding: 12px 14px;
       }
 
       .daily-totals {
         flex: 1 1 0;
         min-width: 0;
-        padding: 8px 10px;
-        gap: 2px;
+        padding: 12px 14px;
+        gap: 4px;
       }
 
-      .timer-label {
-        font-size: 0.7rem;
-        letter-spacing: 1px;
-        padding-bottom: 2px;
+      .timer-label,
+      .daily-label {
+        font-size: 0.6rem;
+        letter-spacing: 1.5px;
+        padding-bottom: 5px;
+        margin-bottom: 4px;
       }
 
       .timer-display {
-        font-size: 1.6rem;
-        letter-spacing: 1px;
+        font-size: 1.4rem;
+        letter-spacing: 0.5px;
       }
 
       .timer-display .ms {
-        font-size: 1rem;
-        letter-spacing: 1px;
-        margin-left: 2px;
-        vertical-align: 2px;
+        font-size: 0.85rem;
       }
 
       .timer-buttons {
@@ -1032,39 +1463,34 @@
       }
 
       .timer-buttons button {
-        padding: 5px 7px;
+        padding: 6px 8px;
         font-size: 0.7rem;
-        letter-spacing: 0.5px;
         flex: 1 1 auto;
         min-width: 38px;
       }
 
-      .daily-label {
-        font-size: 0.7rem;
-        letter-spacing: 1px;
-        padding-bottom: 3px;
-        margin-bottom: 2px;
-      }
-
       .daily-row {
-        font-size: 0.8rem;
-        letter-spacing: 1px;
+        font-size: 0.78rem;
         padding: 1px 0;
         gap: 8px;
       }
 
+      .daily-row .name {
+        font-size: 0.68rem;
+        letter-spacing: 0.8px;
+      }
+
       .daily-row .daily-num {
-        font-size: 1.05rem;
+        font-size: 1rem;
         min-width: 22px;
       }
 
-      .daily-row.active::before {
-        margin-right: -6px;
+      .daily-row.active {
+        padding-left: 6px;
+        padding-right: 6px;
       }
 
-      /* ===== Analytics-view mobile: timer is hidden, daily-totals
-         flips to a single horizontal strip so it doesn't waste
-         vertical space above the analytics content. ===== */
+      /* Analytics view mobile: timer hidden, daily totals as a horizontal strip */
       body.analytics-mode .top-right-stack {
         margin-bottom: 10px;
       }
@@ -1074,7 +1500,7 @@
         flex-wrap: wrap;
         align-items: center;
         gap: 4px 14px;
-        padding: 8px 12px;
+        padding: 10px 14px;
       }
 
       body.analytics-mode .daily-label {
@@ -1101,44 +1527,47 @@
         gap: 18px;
       }
 
+      .brand-logo {
+        height: 40px;
+      }
+
       .tracker-tabs {
-        gap: 6px;
-        margin: -4px 0 14px;
+        gap: 4px;
+        margin: -4px 0 10px;
+        padding: 4px;
       }
 
       .tracker-tab {
         padding: 8px 10px;
-        font-size: 0.78rem;
-        letter-spacing: 1.5px;
+        font-size: 0.74rem;
+        letter-spacing: 0.2px;
         flex: 1 1 30%;
         text-align: center;
       }
 
       h1 {
-        font-size: 1.6rem;
-        letter-spacing: 3px;
+        font-size: 1.9rem;
+        letter-spacing: -0.5px;
       }
 
       .header .subtitle {
-        font-size: 0.85rem;
-        letter-spacing: 2px;
-        margin-bottom: 12px;
+        font-size: 0.95rem;
       }
 
       .tally-container {
-        padding: 24px 16px;
+        padding: 28px 16px;
         gap: 22px;
         max-width: 100%;
       }
 
       .tally-label {
-        font-size: 1.1rem;
-        letter-spacing: 4px;
+        font-size: 0.7rem;
+        letter-spacing: 2.4px;
       }
 
       .tally-count {
         font-size: 6.5rem;
-        letter-spacing: 4px;
+        letter-spacing: -3px;
       }
 
       .tally-pm {
@@ -1146,24 +1575,22 @@
       }
 
       .tally-pm button {
-        width: 96px;
-        height: 96px;
-        font-size: 3rem;
-        border-width: 2px;
+        width: 92px;
+        height: 92px;
+        font-size: 2.8rem;
       }
 
       #resetTallyBtn {
         padding: 14px 22px;
-        font-size: 1rem;
-        letter-spacing: 2px;
+        font-size: 0.95rem;
         width: 100%;
         max-width: 320px;
       }
 
       .email-select-wrap {
         flex-direction: column;
-        gap: 8px;
-        padding: 12px 14px;
+        gap: 10px;
+        padding: 14px 16px;
         width: 100%;
         max-width: 360px;
       }
@@ -1171,25 +1598,26 @@
       .email-select {
         min-width: 0;
         width: 100%;
-        font-size: 1rem;
+        font-size: 0.95rem;
         padding: 12px 36px 12px 14px;
       }
 
       .email-select-label {
-        font-size: 1rem;
-        letter-spacing: 2px;
+        font-size: 0.7rem;
       }
 
       /* Analytics view tweaks */
       body.analytics-mode .header h1 {
-        font-size: 1.3rem;
-        letter-spacing: 3px;
+        font-size: 1.5rem;
       }
 
       body.analytics-mode .header .subtitle {
-        font-size: 0.78rem;
-        letter-spacing: 1.5px;
-        margin-bottom: 6px;
+        font-size: 0.85rem;
+        margin-bottom: 4px;
+      }
+
+      body.analytics-mode .brand-logo {
+        height: 36px;
       }
 
       .stat-grid {
@@ -1198,32 +1626,35 @@
       }
 
       .stat-card {
-        padding: 8px 4px;
+        padding: 10px 6px;
         gap: 3px;
       }
 
       .stat-value {
         font-size: 1.3rem;
-        letter-spacing: 1px;
+        letter-spacing: -0.5px;
       }
 
       .stat-label {
-        font-size: 0.6rem;
-        letter-spacing: 1px;
+        font-size: 0.55rem;
+        letter-spacing: 0.8px;
         line-height: 1.2;
       }
 
       .session-table-wrap {
-        padding: 10px 12px;
+        padding: 12px 14px;
       }
 
       table {
         font-size: 0.78rem;
-        letter-spacing: 0.5px;
       }
 
       th, td {
-        padding: 5px 6px;
+        padding: 7px 8px;
+      }
+
+      th {
+        font-size: 0.6rem;
       }
 
       .table-scroll {
@@ -1231,7 +1662,7 @@
       }
 
       .chart-wrap {
-        padding: 8px;
+        padding: 10px 12px;
       }
 
       .chart-svg {
@@ -1253,34 +1684,48 @@
 
       .storage-status {
         max-width: 100%;
-        font-size: 0.75rem;
-        letter-spacing: 1px;
+        font-size: 0.72rem;
         white-space: normal;
       }
 
-      /* Footer in flow on phones to avoid overlap */
       .footer {
         position: static;
         text-align: center;
         margin-top: 18px;
-        font-size: 0.75rem;
-        letter-spacing: 1px;
+        font-size: 0.65rem;
+      }
+
+      .update-app-btn {
+        position: static;
+        align-self: center;
+        margin: 14px auto 0;
+        padding: 12px 22px;
+        font-size: 0.88rem;
+        width: 100%;
+        max-width: 320px;
+        justify-content: center;
+      }
+
+      .modal {
+        max-width: 100%;
+      }
+
+      .modal-row {
+        grid-template-columns: 1fr;
       }
     }
 
     @media (max-width: 380px) {
-      /* Very narrow phones: stack the timer above the daily totals
-         so each gets full width and stays legible. */
       .top-right-stack {
         flex-direction: column;
       }
 
       .timer-display {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
       }
 
       .timer-display .ms {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
       }
 
       .tally-count {
@@ -1288,13 +1733,13 @@
       }
 
       .tally-pm button {
-        width: 80px;
-        height: 80px;
-        font-size: 2.4rem;
+        width: 78px;
+        height: 78px;
+        font-size: 2.3rem;
       }
 
       .tracker-tab {
-        font-size: 0.7rem;
+        font-size: 0.68rem;
         padding: 7px 6px;
       }
 
@@ -1303,50 +1748,67 @@
       }
 
       .stat-label {
-        font-size: 0.55rem;
+        font-size: 0.52rem;
       }
 
-      /* In analytics on tiny phones, daily-totals takes the full
-         width as a clean single strip (timer is hidden). */
       body.analytics-mode .daily-totals {
         gap: 4px 10px;
       }
     }
 
-    /* Touch-only refinements: bigger hit targets, no hover ghosting */
+    /* Touch-only refinements */
     @media (hover: none) and (pointer: coarse) {
       button {
         min-height: 44px;
       }
 
       button:hover {
-        background: transparent;
-        color: var(--green);
-        text-shadow: inherit;
-        box-shadow: none;
+        background: var(--bg);
+        border-color: var(--blue-soft);
+        box-shadow: var(--shadow-sm);
+      }
+
+      .tally-pm button:hover {
+        background: var(--bg);
+        border-color: var(--blue-soft);
+      }
+
+      #plusBtn:hover {
+        background: var(--blue);
+        border-color: var(--blue);
+      }
+
+      #resetTallyBtn:hover {
+        background: var(--blue);
+        border-color: var(--blue);
       }
 
       button:active {
-        background: var(--green);
-        color: var(--bg);
-        text-shadow: none;
-        box-shadow: 0 0 12px var(--green-glow);
+        background: var(--blue-tint);
+        border-color: var(--blue);
       }
 
-      .tracker-tab:hover {
-        background: transparent;
-        color: var(--green-dim);
-        border-color: var(--green-dim);
-        text-shadow: 0 0 2px var(--green-dim);
+      .tally-pm button:active {
+        background: var(--blue);
+        color: var(--bg);
+        border-color: var(--blue);
+      }
+
+      #plusBtn:active {
+        background: var(--blue-strong);
       }
 
       .tracker-tab.active,
       .tracker-tab:active {
-        background: var(--green);
-        color: var(--bg);
-        border-color: var(--green);
-        text-shadow: none;
-        box-shadow: 0 0 12px var(--green-glow);
+        color: var(--ink);
+        background: var(--bg);
+        border-color: var(--blue-soft);
+        box-shadow: var(--shadow-sm);
+      }
+
+      .tracker-tab:hover {
+        color: var(--ink-soft);
+        background: transparent;
       }
     }
 
@@ -1357,7 +1819,6 @@
       }
     }
 
-    /* Disable double-tap zoom and rubber-band scroll bounce on iOS */
     html {
       touch-action: manipulation;
       overscroll-behavior-y: none;
@@ -1369,7 +1830,7 @@
 
   <div class="top-right-stack">
     <div class="timer-container crt">
-      <div class="timer-label">[ SESSION TIMER ]</div>
+      <div class="timer-label">Session Timer</div>
       <div class="timer-display" id="timerDisplay">00:00:00</div>
       <div class="timer-buttons">
         <button id="startBtn">Start</button>
@@ -1379,9 +1840,9 @@
     </div>
 
     <div class="daily-totals crt">
-      <div class="daily-label">[ TODAY'S TALLY ]</div>
+      <div class="daily-label">Today's Tally</div>
       <div class="daily-row" data-tracker="email">
-        <span class="name">EMAIL</span>
+        <span class="name">Email</span>
         <span class="daily-num" id="dailyEmailCount">0</span>
       </div>
       <div class="daily-row" data-tracker="dm">
@@ -1389,7 +1850,7 @@
         <span class="daily-num" id="dailyDmCount">0</span>
       </div>
       <div class="daily-row" data-tracker="video">
-        <span class="name">VIDEO</span>
+        <span class="name">Video</span>
         <span class="daily-num" id="dailyVideoCount">0</span>
       </div>
     </div>
@@ -1399,7 +1860,6 @@
     <div class="header">
       <h1>ETM Outreach</h1>
       <div class="subtitle" id="pageSubtitle">Daily Email Tracker</div>
-      <div class="bot-line"></div>
     </div>
 
     <div class="tracker-tabs">
@@ -1411,17 +1871,17 @@
     <!-- Tracker view -->
     <section class="view" id="trackerView">
       <div class="tally-container crt">
-        <div class="tally-label">&gt; COUNT</div>
+        <div class="tally-label">Count</div>
         <div class="tally-count" id="tallyCount">0</div>
         <div class="tally-pm">
           <button id="minusBtn" title="Subtract one">&minus;</button>
           <button id="plusBtn" title="Add one">+</button>
         </div>
-        <button id="resetTallyBtn">End Session</button>
+        <button id="resetTallyBtn">Start Session</button>
       </div>
 
       <div class="email-select-wrap crt">
-        <label class="email-select-label" for="emailSelect">EMAIL USED</label>
+        <label class="email-select-label" for="emailSelect">Email Used</label>
         <select class="email-select" id="emailSelect">
           <option value="contact@etmcleaning.com">contact@etmcleaning.com</option>
           <option value="inquiries@etmcleaning.com">inquiries@etmcleaning.com</option>
@@ -1450,7 +1910,7 @@
 
         <div class="analytics-bottom">
           <div class="session-table-wrap crt">
-            <div class="session-table-title">[ SESSION LOG ]</div>
+            <div class="session-table-title">Session Log</div>
             <div class="table-scroll">
               <table id="sessionTable">
                 <thead>
@@ -1461,19 +1921,20 @@
                     <th>Duration</th>
                     <th id="thCount">Sent</th>
                     <th>Avg</th>
+                    <th class="actions-col" aria-label="Actions"></th>
                   </tr>
                 </thead>
                 <tbody id="sessionTableBody"></tbody>
               </table>
               <div class="empty-state hidden" id="emptyState">
-                &gt; NO SESSIONS LOGGED YET.
+                No sessions logged yet.
               </div>
             </div>
           </div>
 
           <div class="chart-wrap crt">
             <div class="chart-header">
-              <div class="chart-title">[ SESSION TRENDS ]</div>
+              <div class="chart-title">Session Trends</div>
               <div class="chart-legend">
                 <span class="legend-item legend-emails">
                   <span class="legend-swatch" style="background: currentColor;"></span>
@@ -1487,7 +1948,7 @@
             </div>
             <svg class="chart-svg" id="sessionChart" viewBox="0 0 900 320" preserveAspectRatio="none"></svg>
             <div class="chart-empty hidden" id="chartEmpty">
-              &gt; LOG AT LEAST ONE SESSION TO SEE TRENDS.
+              Log at least one session to see trends.
             </div>
           </div>
         </div>
@@ -1495,7 +1956,7 @@
         <div class="analytics-actions">
           <span class="storage-status" id="storageStatus">
             <span class="dot"></span>
-            <span id="storageStatusText">LOCAL BROWSER ONLY</span>
+            <span id="storageStatusText">Local browser only</span>
           </span>
           <button id="connectFileBtn">Save to File</button>
           <button id="reconnectFileBtn" class="hidden">Reconnect File</button>
@@ -1510,7 +1971,75 @@
   </div>
 
   <div class="footer">
-    READY<span class="blink">_</span>
+    Ready<span class="blink">_</span>
+  </div>
+
+  <button class="update-app-btn" id="updateAppBtn" type="button">Update App</button>
+
+  <input type="file" id="replaceInput" accept=".json,application/json" hidden>
+
+  <div class="modal-backdrop" id="updateModal" role="dialog" aria-modal="true" aria-labelledby="updateModalTitle" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="updateModalTitle">Save or replace data</div>
+        <button class="modal-close" id="updateModalClose" type="button" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-row">
+          <button class="modal-btn modal-btn-save" id="updateSaveBtn" type="button">Save data</button>
+          <button class="modal-btn modal-btn-replace" id="updateReplaceBtn" type="button">Replace</button>
+        </div>
+        <button class="modal-btn modal-btn-refresh" id="updateRefreshBtn" type="button">Refresh for latest version</button>
+        <div class="modal-info">
+          Removing this app from the home screen or clearing site data can delete everything stored here. <b>Save data</b> downloads one JSON file (to Files or Downloads). <b>Replace</b> picks that file and overwrites this device&mdash;back up first if you might need your current data. <b>Refresh for latest version</b> re-downloads app files from the internet; your tallies and session history stay on this device.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="editModalTitle">Edit session</div>
+        <button class="modal-close" id="editModalClose" type="button" aria-label="Close">&times;</button>
+      </div>
+      <form class="modal-body modal-form" id="editForm" autocomplete="off">
+        <div class="form-field">
+          <label class="form-label" for="editDate">Date &amp; time</label>
+          <input class="form-input" type="datetime-local" id="editDate" required>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label" for="editMinutes">Duration min</label>
+            <input class="form-input" type="number" id="editMinutes" min="0" step="1" required>
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="editSeconds">Duration sec</label>
+            <input class="form-input" type="number" id="editSeconds" min="0" max="59" step="1" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label" for="editCount"><span id="editCountLabel">Count</span></label>
+            <input class="form-input" type="number" id="editCount" min="0" step="1" required>
+          </div>
+          <div class="form-field" id="editEmailField">
+            <label class="form-label" for="editEmail">Email used</label>
+            <select class="form-select" id="editEmail">
+              <option value="contact@etmcleaning.com">contact@etmcleaning.com</option>
+              <option value="inquiries@etmcleaning.com">inquiries@etmcleaning.com</option>
+              <option value="peter@etm-cleaning.com">peter@etm-cleaning.com</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="modal-btn modal-btn-delete" id="editDeleteBtn">Delete</button>
+          <span class="footer-spacer"></span>
+          <button type="button" class="modal-btn modal-btn-cancel" id="editCancelBtn">Cancel</button>
+          <button type="submit" class="modal-btn modal-btn-confirm" id="editSaveBtn">Save</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script>
@@ -1955,20 +2484,20 @@
       storageStatus.classList.remove("connected", "warn");
       if (fileHandle && !fileNeedsPermission) {
         storageStatus.classList.add("connected");
-        storageStatusText.textContent = `AUTO-SAVING TO ${fileHandle.name}`;
+        storageStatusText.textContent = `Auto-saving to ${fileHandle.name}`;
         connectFileBtn.classList.add("hidden");
         reconnectFileBtn.classList.add("hidden");
         disconnectFileBtn.classList.remove("hidden");
       } else if (fileHandle && fileNeedsPermission) {
         storageStatus.classList.add("warn");
-        storageStatusText.textContent = `RECONNECT NEEDED: ${fileHandle.name}`;
+        storageStatusText.textContent = `Reconnect needed: ${fileHandle.name}`;
         connectFileBtn.classList.add("hidden");
         reconnectFileBtn.classList.remove("hidden");
         disconnectFileBtn.classList.remove("hidden");
       } else {
         storageStatusText.textContent = isFsApiSupported()
-          ? "LOCAL BROWSER ONLY"
-          : "LOCAL BROWSER ONLY (FILE SAVE UNSUPPORTED IN THIS BROWSER)";
+          ? "Local browser only"
+          : "Local browser only (file save unsupported in this browser)";
         connectFileBtn.classList.remove("hidden");
         reconnectFileBtn.classList.add("hidden");
         disconnectFileBtn.classList.add("hidden");
@@ -2056,6 +2585,7 @@
       s.timerStartedAt = performance.now();
       ensureTimerLoop();
       renderTimer();
+      updateSessionButtonLabel();
     }
 
     function ensureTimerLoop() {
@@ -2092,6 +2622,7 @@
         timerInterval = null;
       }
       renderTimer();
+      updateSessionButtonLabel();
     }
 
     // Snapshot current tracker's timer (preserve elapsed; pause it) when switching trackers
@@ -2119,9 +2650,21 @@
     const minusBtn = document.getElementById("minusBtn");
     const resetTallyBtn = document.getElementById("resetTallyBtn");
 
+    // Reflects the active tracker's state on the session button:
+    //   - "Start Session" when fully idle (tally 0 + timer 0)
+    //   - "End Session"   once a session is in progress (any tally or any
+    //     elapsed timer time, even if the timer is currently paused).
+    function updateSessionButtonLabel() {
+      if (!resetTallyBtn) return;
+      const s = st();
+      const idle = s.tally === 0 && getElapsedMs() === 0;
+      resetTallyBtn.textContent = idle ? "Start Session" : "End Session";
+    }
+
     function updateTally() {
       tallyCount.textContent = st().tally;
       updateDailyTotals();
+      updateSessionButtonLabel();
     }
 
     plusBtn.addEventListener("click", () => {
@@ -2147,6 +2690,16 @@
     resetTallyBtn.addEventListener("click", () => {
       const s = st();
       const elapsedMs = getElapsedMs();
+
+      // Idle -> button acts as "Start Session": kick off the timer the same
+      // way pressing + would, but without incrementing the tally.
+      if (s.tally === 0 && elapsedMs === 0) {
+        s.sessionStartedAt = Date.now();
+        startTimerIfNeeded();
+        return;
+      }
+
+      // Active -> "End Session": log the session and reset for the next one.
       if (s.tally > 0 || elapsedMs > 0) {
         const sessions = loadSessions();
         const session = {
@@ -2219,10 +2772,12 @@
       const cfg = tcfg();
       if (currentView === "tracker") {
         pageSubtitle.textContent = cfg.trackerSubtitle;
-        pageToggleBtn.textContent = cfg.name;
+        pageToggleBtn.textContent = "Analytics";
+        pageToggleBtn.classList.remove("is-back");
       } else {
         pageSubtitle.textContent = cfg.name;
         pageToggleBtn.textContent = "Tracker";
+        pageToggleBtn.classList.add("is-back");
       }
     }
 
@@ -2334,6 +2889,8 @@
           .slice()
           .reverse()
           .forEach((x, idx) => {
+            // Storage index (sessions array is rendered newest-first).
+            const storageIdx = sessions.length - 1 - idx;
             const tr = document.createElement("tr");
             const sessionAvg = computeAvgGap(x.tallyTimestamps);
             const emailCell = showEmailCol
@@ -2351,6 +2908,12 @@
               <td>${formatTime(x.durationSeconds || 0)}</td>
               <td>${x.emailCount || 0}</td>
               <td>${sessionAvg == null ? "--:--" : formatShort(sessionAvg)}</td>
+              <td class="actions-col">
+                <span class="row-actions">
+                  <button type="button" class="row-action" data-action="edit" data-index="${storageIdx}" title="Edit session" aria-label="Edit session">&#9998;</button>
+                  <button type="button" class="row-action delete" data-action="delete" data-index="${storageIdx}" title="Delete session" aria-label="Delete session">&times;</button>
+                </span>
+              </td>
             `;
             sessionTableBody.appendChild(tr);
           });
@@ -2474,6 +3037,338 @@
         saveSessions([]);
         renderAnalytics();
         updateDailyTotals();
+      }
+    });
+
+    // ==========================================================
+    // EDIT / DELETE INDIVIDUAL SESSION ENTRIES
+    //   - The session table renders an "Actions" cell per row with
+    //     edit + delete buttons. Click handling uses event delegation
+    //     on the table body. Each button carries data-index = the
+    //     entry's position in the storage array (NOT the displayed
+    //     row number, since the table renders newest-first).
+    //   - The edit modal lets the user change the session date/time,
+    //     duration, count, and (for the email tracker) the email used.
+    //   - On save, the modal mutates that session in place, persists
+    //     the whole sessions array, and re-renders. tallyTimestamps
+    //     get shifted by the same delta as the new start time so the
+    //     chart/avg-gap stay anchored to the new date.
+    // ==========================================================
+    const editModal = document.getElementById("editModal");
+    const editModalClose = document.getElementById("editModalClose");
+    const editForm = document.getElementById("editForm");
+    const editDateInput = document.getElementById("editDate");
+    const editMinutesInput = document.getElementById("editMinutes");
+    const editSecondsInput = document.getElementById("editSeconds");
+    const editCountInput = document.getElementById("editCount");
+    const editCountLabel = document.getElementById("editCountLabel");
+    const editEmailField = document.getElementById("editEmailField");
+    const editEmailSelect = document.getElementById("editEmail");
+    const editDeleteBtn = document.getElementById("editDeleteBtn");
+    const editCancelBtn = document.getElementById("editCancelBtn");
+
+    let editingTracker = null; // which tracker the edited session belongs to
+    let editingIndex = -1;     // its index in that tracker's sessions array
+
+    // Convert ms -> "YYYY-MM-DDTHH:MM" for <input type=datetime-local>
+    function msToLocalInput(ms) {
+      const d = new Date(ms);
+      const pad = (n) => String(n).padStart(2, "0");
+      return (
+        d.getFullYear() +
+        "-" + pad(d.getMonth() + 1) +
+        "-" + pad(d.getDate()) +
+        "T" + pad(d.getHours()) +
+        ":" + pad(d.getMinutes())
+      );
+    }
+
+    function openEditModal(index) {
+      const sessions = loadSessions();
+      const session = sessions[index];
+      if (!session) return;
+
+      editingTracker = currentTracker;
+      editingIndex = index;
+
+      const cfg = tcfg();
+      editCountLabel.textContent = `${cfg.unitPlural} ${cfg.actionVerb}`;
+
+      const startedAt = session.startedAt || session.endedAt || Date.now();
+      editDateInput.value = msToLocalInput(startedAt);
+
+      const totalSec = Math.max(0, Math.round(session.durationSeconds || 0));
+      editMinutesInput.value = Math.floor(totalSec / 60);
+      editSecondsInput.value = totalSec % 60;
+
+      editCountInput.value = session.emailCount || 0;
+
+      if (currentTracker === "email") {
+        editEmailField.classList.remove("hidden");
+        const current = session.emailUsed || "";
+        const has = Array.from(editEmailSelect.options).some(
+          (o) => o.value === current
+        );
+        if (!has && current) {
+          const opt = document.createElement("option");
+          opt.value = current;
+          opt.textContent = current;
+          editEmailSelect.insertBefore(opt, editEmailSelect.firstChild);
+        }
+        editEmailSelect.value = current || editEmailSelect.options[0].value;
+      } else {
+        editEmailField.classList.add("hidden");
+      }
+
+      editModal.hidden = false;
+      requestAnimationFrame(() => editModal.classList.add("open"));
+      document.body.style.overflow = "hidden";
+      // Defer focus so iOS doesn't pop the keyboard before the transition
+      setTimeout(() => editCountInput.focus({ preventScroll: true }), 220);
+    }
+
+    function closeEditModal() {
+      editModal.classList.remove("open");
+      document.body.style.overflow = "";
+      setTimeout(() => {
+        if (!editModal.classList.contains("open")) editModal.hidden = true;
+      }, 220);
+      editingTracker = null;
+      editingIndex = -1;
+    }
+
+    function deleteSessionAt(index) {
+      const sessions = loadSessions();
+      if (!sessions[index]) return;
+      const ok = confirm(
+        `Delete this session?\n\n` +
+        `${formatDate(sessions[index].startedAt || sessions[index].endedAt)}\n` +
+        `${sessions[index].emailCount || 0} ${tcfg().unitPlural.toLowerCase()}, ` +
+        `${formatTime(sessions[index].durationSeconds || 0)}\n\n` +
+        `This cannot be undone.`
+      );
+      if (!ok) return;
+      sessions.splice(index, 1);
+      saveSessions(sessions);
+      renderAnalytics();
+      updateDailyTotals();
+    }
+
+    // Event delegation: handle clicks on edit/delete buttons inside the table
+    sessionTableBody.addEventListener("click", (e) => {
+      const btn = e.target.closest(".row-action");
+      if (!btn) return;
+      const idx = parseInt(btn.dataset.index, 10);
+      if (!Number.isInteger(idx)) return;
+      if (btn.dataset.action === "edit") {
+        openEditModal(idx);
+      } else if (btn.dataset.action === "delete") {
+        deleteSessionAt(idx);
+      }
+    });
+
+    editModalClose.addEventListener("click", closeEditModal);
+    editCancelBtn.addEventListener("click", closeEditModal);
+    editModal.addEventListener("click", (e) => {
+      if (e.target === editModal) closeEditModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !editModal.hidden) closeEditModal();
+    });
+
+    editDeleteBtn.addEventListener("click", () => {
+      if (editingIndex < 0 || !editingTracker) return;
+      const idxToDelete = editingIndex;
+      const trackerToDelete = editingTracker;
+      // Close first so the confirm() doesn't read as part of the modal flow.
+      closeEditModal();
+      // Delete from the tracker the row originally came from, even if the
+      // user somehow switched trackers behind the modal.
+      const all = loadAll();
+      const sessions = all[trackerToDelete] || [];
+      if (!sessions[idxToDelete]) return;
+      const ok = confirm("Delete this session? This cannot be undone.");
+      if (!ok) return;
+      sessions.splice(idxToDelete, 1);
+      all[trackerToDelete] = sessions;
+      saveAll(all);
+      renderAnalytics();
+      updateDailyTotals();
+    });
+
+    editForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (editingIndex < 0 || !editingTracker) return;
+
+      const all = loadAll();
+      const sessions = all[editingTracker] || [];
+      const session = sessions[editingIndex];
+      if (!session) {
+        closeEditModal();
+        return;
+      }
+
+      // Parse new values
+      const newDateStr = editDateInput.value;
+      const newDate = newDateStr ? new Date(newDateStr) : null;
+      if (!newDate || isNaN(newDate.getTime())) {
+        alert("Please enter a valid date and time.");
+        return;
+      }
+
+      const mins = Math.max(0, parseInt(editMinutesInput.value, 10) || 0);
+      const secs = Math.max(0, Math.min(59, parseInt(editSecondsInput.value, 10) || 0));
+      const newDurationSeconds = mins * 60 + secs;
+
+      const newCount = Math.max(0, parseInt(editCountInput.value, 10) || 0);
+
+      const oldStartedAt = session.startedAt || session.endedAt || Date.now();
+      const newStartedAt = newDate.getTime();
+      const delta = newStartedAt - oldStartedAt;
+
+      session.startedAt = newStartedAt;
+      session.endedAt = newStartedAt + newDurationSeconds * 1000;
+      session.durationSeconds = newDurationSeconds;
+      session.emailCount = newCount;
+
+      // Shift per-tap timestamps so the chart's gap timing stays meaningful
+      // relative to the new session date.
+      if (Array.isArray(session.tallyTimestamps) && session.tallyTimestamps.length) {
+        session.tallyTimestamps = session.tallyTimestamps.map((t) => t + delta);
+      }
+
+      if (editingTracker === "email") {
+        session.emailUsed = editEmailSelect.value;
+      }
+
+      all[editingTracker] = sessions;
+      saveAll(all);
+      closeEditModal();
+      renderAnalytics();
+      updateDailyTotals();
+    });
+
+    // ==========================================================
+    // UPDATE APP MODAL
+    //   - Save data    : downloads a JSON backup of EVERYTHING saved
+    //                    (all trackers + sessions). Reuses exportData().
+    //   - Replace      : pick a JSON file -> REPLACES all current data
+    //                    on this device (no merge, no prompt — destructive).
+    //                    Confirms before overwriting.
+    //   - Refresh      : re-downloads app files from the network by
+    //                    purging caches + unregistering the service worker
+    //                    and force-reloading. Stored data is NOT touched.
+    // ==========================================================
+    const updateAppBtn = document.getElementById("updateAppBtn");
+    const updateModal = document.getElementById("updateModal");
+    const updateModalClose = document.getElementById("updateModalClose");
+    const updateSaveBtn = document.getElementById("updateSaveBtn");
+    const updateReplaceBtn = document.getElementById("updateReplaceBtn");
+    const updateRefreshBtn = document.getElementById("updateRefreshBtn");
+    const replaceInput = document.getElementById("replaceInput");
+
+    function openUpdateModal() {
+      updateModal.hidden = false;
+      // next frame so the transition can play
+      requestAnimationFrame(() => updateModal.classList.add("open"));
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeUpdateModal() {
+      updateModal.classList.remove("open");
+      document.body.style.overflow = "";
+      setTimeout(() => {
+        if (!updateModal.classList.contains("open")) updateModal.hidden = true;
+      }, 220);
+    }
+
+    updateAppBtn.addEventListener("click", openUpdateModal);
+    updateModalClose.addEventListener("click", closeUpdateModal);
+    updateModal.addEventListener("click", (e) => {
+      if (e.target === updateModal) closeUpdateModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !updateModal.hidden) closeUpdateModal();
+    });
+
+    // Save data -> reuse the existing JSON export.
+    updateSaveBtn.addEventListener("click", () => {
+      exportData();
+    });
+
+    // Replace -> open file picker, then OVERWRITE all stored data
+    // with the contents of the picked JSON (same shape as Save / Export).
+    updateReplaceBtn.addEventListener("click", () => {
+      replaceInput.click();
+    });
+
+    replaceInput.addEventListener("change", async () => {
+      const file = replaceInput.files && replaceInput.files[0];
+      replaceInput.value = "";
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        const incoming = normalizeData(parsed);
+        const incomingTotal = totalSessionCount(incoming);
+        const currentTotal = totalSessionCount(loadAll());
+        const ok = confirm(
+          `Replace ALL data on this device with ${incomingTotal} session(s) from "${file.name}"?\n\n` +
+          `Your current ${currentTotal} session(s) will be deleted. This cannot be undone — Save data first if you might need it.`
+        );
+        if (!ok) return;
+        await saveAll(incoming);
+        // Reset any in-progress (in-memory) session state too,
+        // so the UI matches the freshly-loaded data exactly.
+        TRACKER_IDS.forEach((t) => {
+          trackerState[t].tally = 0;
+          trackerState[t].tallyTimestamps = [];
+          trackerState[t].sessionStartedAt = null;
+          trackerState[t].timerStartedAt = null;
+          trackerState[t].accumulatedMs = 0;
+        });
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+        updateTally();
+        renderTimer();
+        renderAnalytics();
+        updateDailyTotals();
+        closeUpdateModal();
+        alert(`Replaced. Loaded ${incomingTotal} session(s) from "${file.name}".`);
+      } catch (e) {
+        alert("Could not replace data: " + (e && e.message ? e.message : e));
+      }
+    });
+
+    // Refresh for latest version -> purge caches + unregister SW + hard reload.
+    // App data in localStorage / IndexedDB is NOT touched.
+    updateRefreshBtn.addEventListener("click", async () => {
+      const ok = confirm(
+        "Re-download the latest version of the app from the internet?\n\n" +
+        "Your saved tallies, sessions, and settings on this device stay intact."
+      );
+      if (!ok) return;
+      const originalLabel = updateRefreshBtn.textContent;
+      updateRefreshBtn.disabled = true;
+      updateRefreshBtn.textContent = "Refreshing…";
+      try {
+        if ("caches" in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map((k) => caches.delete(k)));
+        }
+        if ("serviceWorker" in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map((r) => r.unregister()));
+        }
+      } catch (e) {
+        console.warn("Refresh cleanup error:", e);
+      } finally {
+        // Cache-bust query param + reload.
+        const url = new URL(window.location.href);
+        url.searchParams.set("_v", Date.now().toString(36));
+        window.location.replace(url.toString());
       }
     });
 

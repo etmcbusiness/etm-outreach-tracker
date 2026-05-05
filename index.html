@@ -599,11 +599,22 @@
       top: 24px;
     }
 
+    .analytics-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+    }
+
     .stat-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 14px;
       width: 100%;
+    }
+
+    .stat-grid-secondary {
+      grid-template-columns: repeat(2, 1fr);
     }
 
     .stat-card {
@@ -1286,6 +1297,31 @@
       box-shadow: var(--shadow-sm);
     }
 
+    .delete-session-lead {
+      color: var(--ink-soft);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .delete-session-detail {
+      text-align: left;
+    }
+
+    .delete-session-detail .delete-session-line {
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin: 0 0 6px;
+    }
+
+    .delete-session-detail .delete-session-sub {
+      color: var(--ink-soft);
+      font-size: 0.88rem;
+      margin: 0;
+      font-weight: 500;
+    }
+
     /* ==========================================================
        MOBILE / RESPONSIVE LAYOUT
        ========================================================== */
@@ -1361,9 +1397,16 @@
         font-size: 3.4rem;
       }
 
-      .stat-grid {
+      .stat-grid-primary {
         grid-template-columns: 1fr 1fr 1fr;
+      }
+
+      .stat-grid {
         gap: 10px;
+      }
+
+      .stat-grid-secondary {
+        grid-template-columns: repeat(2, 1fr);
       }
 
       .stat-card {
@@ -1620,9 +1663,16 @@
         height: 36px;
       }
 
+      .stat-grid-primary {
+        grid-template-columns: 1fr;
+      }
+
       .stat-grid {
-        grid-template-columns: 1fr 1fr 1fr;
         gap: 6px;
+      }
+
+      .stat-grid-secondary {
+        grid-template-columns: 1fr 1fr;
       }
 
       .stat-card {
@@ -1697,13 +1747,21 @@
 
       .update-app-btn {
         position: static;
+        display: flex;
         align-self: center;
         margin: 14px auto 0;
+        margin-inline: auto;
         padding: 12px 22px;
         font-size: 0.88rem;
-        width: 100%;
-        max-width: 320px;
+        width: min(100%, 320px);
+        max-width: 100%;
         justify-content: center;
+        box-sizing: border-box;
+      }
+
+      /* Base rule uses translateX(-50%) for fixed + left:50%; that mis-centers when static */
+      .update-app-btn:active {
+        transform: translateY(1px);
       }
 
       .modal {
@@ -1893,18 +1951,30 @@
     <!-- Analytics view -->
     <section class="view hidden" id="analyticsView">
       <div class="analytics-wrap">
-        <div class="stat-grid">
-          <div class="stat-card crt">
-            <div class="stat-label" id="statTotalLabel">Total Emails Sent</div>
-            <div class="stat-value" id="statTotalEmails">0</div>
+        <div class="analytics-stats">
+          <div class="stat-grid stat-grid-primary">
+            <div class="stat-card crt">
+              <div class="stat-label" id="statTotalLabel">Total Emails Sent</div>
+              <div class="stat-value" id="statTotalEmails">0</div>
+            </div>
+            <div class="stat-card crt">
+              <div class="stat-label" id="statMonthLabel">Total Emails Sent this Month</div>
+              <div class="stat-value" id="statMonthCount">0</div>
+            </div>
+            <div class="stat-card crt">
+              <div class="stat-label" id="statWeekLabel">Total Emails Sent this Week</div>
+              <div class="stat-value" id="statWeekCount">0</div>
+            </div>
           </div>
-          <div class="stat-card crt">
-            <div class="stat-label" id="statAvgLabel">Avg Time / Email</div>
-            <div class="stat-value" id="statAvgGap">--:--</div>
-          </div>
-          <div class="stat-card crt">
-            <div class="stat-label">Total Sessions</div>
-            <div class="stat-value" id="statTotalSessions">0</div>
+          <div class="stat-grid stat-grid-secondary">
+            <div class="stat-card crt">
+              <div class="stat-label" id="statAvgLabel">Average Time / Email</div>
+              <div class="stat-value" id="statAvgGap">--:--</div>
+            </div>
+            <div class="stat-card crt">
+              <div class="stat-label">Total Sessions</div>
+              <div class="stat-value" id="statTotalSessions">0</div>
+            </div>
           </div>
         </div>
 
@@ -2039,6 +2109,28 @@
           <button type="submit" class="modal-btn modal-btn-confirm" id="editSaveBtn">Save</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="deleteSessionModal" role="dialog" aria-modal="true" aria-labelledby="deleteSessionModalTitle" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="deleteSessionModalTitle">Delete session</div>
+        <button class="modal-close" id="deleteSessionModalClose" type="button" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="delete-session-lead">This removes the log entry permanently. This cannot be undone.</p>
+        <div class="modal-info delete-session-detail">
+          <p class="delete-session-line" id="deleteSessionDateLine"></p>
+          <p class="delete-session-sub" id="deleteSessionStatsLine"></p>
+          <p class="delete-session-sub hidden" id="deleteSessionEmailLine"></p>
+        </div>
+        <div class="modal-footer">
+          <span class="footer-spacer"></span>
+          <button type="button" class="modal-btn modal-btn-cancel" id="deleteSessionCancelBtn">Cancel</button>
+          <button type="button" class="modal-btn modal-btn-delete" id="deleteSessionConfirmBtn">Delete</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2650,15 +2742,27 @@
     const minusBtn = document.getElementById("minusBtn");
     const resetTallyBtn = document.getElementById("resetTallyBtn");
 
+    // True when there is no in-progress session. Uses timer fields directly
+    // instead of getElapsedMs() === 0, which can be true for a tick right
+    // after the timer starts (performance.now() - timerStartedAt may be 0).
+    function isSessionIdle() {
+      const s = st();
+      return (
+        s.tally === 0 &&
+        s.timerStartedAt == null &&
+        s.accumulatedMs === 0
+      );
+    }
+
     // Reflects the active tracker's state on the session button:
     //   - "Start Session" when fully idle (tally 0 + timer 0)
     //   - "End Session"   once a session is in progress (any tally or any
     //     elapsed timer time, even if the timer is currently paused).
     function updateSessionButtonLabel() {
       if (!resetTallyBtn) return;
-      const s = st();
-      const idle = s.tally === 0 && getElapsedMs() === 0;
-      resetTallyBtn.textContent = idle ? "Start Session" : "End Session";
+      resetTallyBtn.textContent = isSessionIdle()
+        ? "Start Session"
+        : "End Session";
     }
 
     function updateTally() {
@@ -2669,7 +2773,7 @@
 
     plusBtn.addEventListener("click", () => {
       const s = st();
-      if (s.tally === 0 && getElapsedMs() === 0) {
+      if (isSessionIdle()) {
         startTimerIfNeeded();
         s.sessionStartedAt = Date.now();
       }
@@ -2693,7 +2797,7 @@
 
       // Idle -> button acts as "Start Session": kick off the timer the same
       // way pressing + would, but without incrementing the tally.
-      if (s.tally === 0 && elapsedMs === 0) {
+      if (isSessionIdle()) {
         s.sessionStartedAt = Date.now();
         startTimerIfNeeded();
         return;
@@ -2804,9 +2908,13 @@
     // ANALYTICS
     // ==========================================================
     const statTotalEmails = document.getElementById("statTotalEmails");
+    const statMonthCount = document.getElementById("statMonthCount");
+    const statWeekCount = document.getElementById("statWeekCount");
     const statAvgGap = document.getElementById("statAvgGap");
     const statTotalSessions = document.getElementById("statTotalSessions");
     const statTotalLabel = document.getElementById("statTotalLabel");
+    const statMonthLabel = document.getElementById("statMonthLabel");
+    const statWeekLabel = document.getElementById("statWeekLabel");
     const statAvgLabel = document.getElementById("statAvgLabel");
     const thCount = document.getElementById("thCount");
     const legendCountText = document.getElementById("legendCountText");
@@ -2832,10 +2940,45 @@
       });
     }
 
+    function sessionAnchorMs(session) {
+      return session.startedAt || session.endedAt || 0;
+    }
+
+    /** Local calendar month (present month when `now` is default). */
+    function isInLocalCalendarMonth(ms, now = new Date()) {
+      const d = new Date(ms);
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    }
+
+    /** Monday 00:00:00.000 local for the ISO-style week that contains `now`. */
+    function startOfWeekMondayMs(now = new Date()) {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const day = d.getDay();
+      const delta = day === 0 ? -6 : 1 - day;
+      d.setDate(d.getDate() + delta);
+      d.setHours(0, 0, 0, 0);
+      return d.getTime();
+    }
+
+    /** Sunday 23:59:59.999 local for that same week (Mon–Sun). */
+    function endOfWeekSundayMs(now = new Date()) {
+      const start = startOfWeekMondayMs(now);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 7);
+      end.setMilliseconds(end.getMilliseconds() - 1);
+      return end.getTime();
+    }
+
+    function isInCurrentWeekMonSun(ms, now = new Date()) {
+      return ms >= startOfWeekMondayMs(now) && ms <= endOfWeekSundayMs(now);
+    }
+
     function updateAnalyticsLabels() {
       const cfg = tcfg();
       statTotalLabel.textContent = `Total ${cfg.unitPlural} ${cfg.actionVerb}`;
-      statAvgLabel.textContent = `Avg Time / ${cfg.unitSingular}`;
+      statMonthLabel.textContent = `Total ${cfg.unitPlural} ${cfg.actionVerb} this Month`;
+      statWeekLabel.textContent = `Total ${cfg.unitPlural} ${cfg.actionVerb} this Week`;
+      statAvgLabel.textContent = `Average Time / ${cfg.unitSingular}`;
       thCount.textContent = cfg.actionVerb;
       legendCountText.textContent = cfg.unitPlural;
       // Email column visible only for email tracker
@@ -2873,7 +3016,23 @@
       }
       const avgGap = gapCount > 0 ? totalGapSeconds / gapCount : null;
 
+      const now = new Date();
+      let monthCount = 0;
+      let weekCount = 0;
+      for (const x of sessions) {
+        const anchor = sessionAnchorMs(x);
+        const n = x.emailCount || 0;
+        if (anchor && isInLocalCalendarMonth(anchor, now)) monthCount += n;
+        if (anchor && isInCurrentWeekMonSun(anchor, now)) weekCount += n;
+      }
+      if (s.tally > 0 && s.sessionStartedAt) {
+        if (isInLocalCalendarMonth(s.sessionStartedAt, now)) monthCount += s.tally;
+        if (isInCurrentWeekMonSun(s.sessionStartedAt, now)) weekCount += s.tally;
+      }
+
       statTotalEmails.textContent = totalCount;
+      statMonthCount.textContent = monthCount;
+      statWeekCount.textContent = weekCount;
       statAvgGap.textContent = avgGap == null ? "--:--" : formatShort(avgGap);
       statTotalSessions.textContent = sessions.length;
 
@@ -3066,9 +3225,18 @@
     const editEmailSelect = document.getElementById("editEmail");
     const editDeleteBtn = document.getElementById("editDeleteBtn");
     const editCancelBtn = document.getElementById("editCancelBtn");
+    const deleteSessionModal = document.getElementById("deleteSessionModal");
+    const deleteSessionModalClose = document.getElementById("deleteSessionModalClose");
+    const deleteSessionCancelBtn = document.getElementById("deleteSessionCancelBtn");
+    const deleteSessionConfirmBtn = document.getElementById("deleteSessionConfirmBtn");
+    const deleteSessionDateLine = document.getElementById("deleteSessionDateLine");
+    const deleteSessionStatsLine = document.getElementById("deleteSessionStatsLine");
+    const deleteSessionEmailLine = document.getElementById("deleteSessionEmailLine");
 
     let editingTracker = null; // which tracker the edited session belongs to
     let editingIndex = -1;     // its index in that tracker's sessions array
+    let pendingDeleteTracker = null;
+    let pendingDeleteIndex = -1;
 
     // Convert ms -> "YYYY-MM-DDTHH:MM" for <input type=datetime-local>
     function msToLocalInput(ms) {
@@ -3137,19 +3305,57 @@
       editingIndex = -1;
     }
 
-    function deleteSessionAt(index) {
-      const sessions = loadSessions();
-      if (!sessions[index]) return;
-      const ok = confirm(
-        `Delete this session?\n\n` +
-        `${formatDate(sessions[index].startedAt || sessions[index].endedAt)}\n` +
-        `${sessions[index].emailCount || 0} ${tcfg().unitPlural.toLowerCase()}, ` +
-        `${formatTime(sessions[index].durationSeconds || 0)}\n\n` +
-        `This cannot be undone.`
+    function openDeleteSessionModal(trackerKey, index) {
+      const sessions = loadSessions(trackerKey);
+      const session = sessions[index];
+      if (!session) return;
+
+      pendingDeleteTracker = trackerKey;
+      pendingDeleteIndex = index;
+
+      const cfg = TRACKERS[trackerKey] || TRACKERS.email;
+      deleteSessionDateLine.textContent = formatDate(
+        session.startedAt || session.endedAt
       );
-      if (!ok) return;
+      deleteSessionStatsLine.textContent = `${session.emailCount || 0} ${cfg.unitPlural.toLowerCase()} · ${formatTime(session.durationSeconds || 0)}`;
+
+      const emailUsed = session.emailUsed;
+      if (trackerKey === "email" && emailUsed) {
+        deleteSessionEmailLine.textContent = emailUsed;
+        deleteSessionEmailLine.classList.remove("hidden");
+      } else {
+        deleteSessionEmailLine.classList.add("hidden");
+      }
+
+      deleteSessionModal.hidden = false;
+      requestAnimationFrame(() => deleteSessionModal.classList.add("open"));
+      document.body.style.overflow = "hidden";
+      setTimeout(() => deleteSessionCancelBtn.focus({ preventScroll: true }), 220);
+    }
+
+    function closeDeleteSessionModal() {
+      deleteSessionModal.classList.remove("open");
+      pendingDeleteTracker = null;
+      pendingDeleteIndex = -1;
+      document.body.style.overflow = "";
+      setTimeout(() => {
+        if (!deleteSessionModal.classList.contains("open"))
+          deleteSessionModal.hidden = true;
+      }, 220);
+    }
+
+    function runPendingDelete() {
+      if (pendingDeleteIndex < 0 || !pendingDeleteTracker) return;
+      const trackerKey = pendingDeleteTracker;
+      const index = pendingDeleteIndex;
+      const sessions = loadSessions(trackerKey);
+      if (!sessions[index]) {
+        closeDeleteSessionModal();
+        return;
+      }
       sessions.splice(index, 1);
-      saveSessions(sessions);
+      saveSessions(sessions, trackerKey);
+      closeDeleteSessionModal();
       renderAnalytics();
       updateDailyTotals();
     }
@@ -3163,7 +3369,7 @@
       if (btn.dataset.action === "edit") {
         openEditModal(idx);
       } else if (btn.dataset.action === "delete") {
-        deleteSessionAt(idx);
+        openDeleteSessionModal(currentTracker, idx);
       }
     });
 
@@ -3173,27 +3379,27 @@
       if (e.target === editModal) closeEditModal();
     });
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && !editModal.hidden) closeEditModal();
+      if (e.key !== "Escape") return;
+      if (!deleteSessionModal.hidden) {
+        closeDeleteSessionModal();
+        return;
+      }
+      if (!editModal.hidden) closeEditModal();
     });
+
+    deleteSessionModalClose.addEventListener("click", closeDeleteSessionModal);
+    deleteSessionCancelBtn.addEventListener("click", closeDeleteSessionModal);
+    deleteSessionModal.addEventListener("click", (e) => {
+      if (e.target === deleteSessionModal) closeDeleteSessionModal();
+    });
+    deleteSessionConfirmBtn.addEventListener("click", runPendingDelete);
 
     editDeleteBtn.addEventListener("click", () => {
       if (editingIndex < 0 || !editingTracker) return;
       const idxToDelete = editingIndex;
       const trackerToDelete = editingTracker;
-      // Close first so the confirm() doesn't read as part of the modal flow.
       closeEditModal();
-      // Delete from the tracker the row originally came from, even if the
-      // user somehow switched trackers behind the modal.
-      const all = loadAll();
-      const sessions = all[trackerToDelete] || [];
-      if (!sessions[idxToDelete]) return;
-      const ok = confirm("Delete this session? This cannot be undone.");
-      if (!ok) return;
-      sessions.splice(idxToDelete, 1);
-      all[trackerToDelete] = sessions;
-      saveAll(all);
-      renderAnalytics();
-      updateDailyTotals();
+      openDeleteSessionModal(trackerToDelete, idxToDelete);
     });
 
     editForm.addEventListener("submit", (e) => {

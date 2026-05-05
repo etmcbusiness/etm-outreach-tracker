@@ -4,7 +4,7 @@
 //   - Other assets        -> stale-while-revalidate (fast + auto-updating)
 // Bump CACHE_NAME on every shipping change so old caches are purged.
 
-const CACHE_NAME = "etm-tracker-v15";
+const CACHE_NAME = "etm-tracker-v16";
 const ICON_ASSET = "./icon.png?v=8";
 const APP_SHELL = [
   "./",

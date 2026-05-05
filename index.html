@@ -1465,9 +1465,7 @@
       body {
         padding: 12px;
         padding-top: max(12px, env(safe-area-inset-top));
-        padding-bottom: calc(
-          12px + 52px + max(0px, env(safe-area-inset-bottom))
-        );
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
         padding-left: max(12px, env(safe-area-inset-left));
         padding-right: max(12px, env(safe-area-inset-right));
         display: flex;
@@ -1775,6 +1773,19 @@
         text-align: center;
         margin-top: 18px;
         font-size: 0.65rem;
+      }
+
+      .update-app-bar {
+        position: static;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        z-index: auto;
+        width: 100%;
+        margin-top: 14px;
+        padding-left: 0;
+        padding-right: 0;
+        pointer-events: auto;
       }
 
       .update-app-btn {
@@ -3512,31 +3523,44 @@
     const replaceInput = document.getElementById("replaceInput");
     const updateLastDeployed = document.getElementById("updateLastDeployed");
 
-    /** Parse deploy stamp; naive ISO datetimes without timezone are treated as UTC (common CI output). */
-    function parseDeployedAt(raw) {
+    /**
+     * Show the exact date/time digits from version.json (no timezone conversion).
+     * ISO strings: uses the calendar + clock portion as written before Z/offset.
+     * Unix ms: formats that instant in UTC so it stays stable everywhere.
+     */
+    function formatDeployedAtLabel(raw) {
       if (raw == null) return null;
-      if (typeof raw === "number" && Number.isFinite(raw)) return new Date(raw);
+      if (typeof raw === "number" && Number.isFinite(raw)) {
+        const d = new Date(raw);
+        if (isNaN(d.getTime())) return null;
+        const mm = d.getUTCMonth() + 1;
+        const dd = d.getUTCDate();
+        const yy = String(d.getUTCFullYear() % 100).padStart(2, "0");
+        const hh = String(d.getUTCHours()).padStart(2, "0");
+        const min = String(d.getUTCMinutes()).padStart(2, "0");
+        return `Last update ${mm}/${dd}/${yy} at ${hh}:${min}`;
+      }
       const s = String(raw).trim();
       if (!s) return null;
-      if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(s + "T00:00:00Z");
-      if (
-        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(s) &&
-        !/[zZ]$/.test(s) &&
-        !/[+-]\d{2}:?\d{2}$/.test(s)
-      ) {
-        return new Date(s + "Z");
+      const m = s.match(
+        /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::\d{2}(?:\.\d+)?)?)?/
+      );
+      if (m) {
+        const y = Number(m[1]);
+        const mo = Number(m[2]);
+        const day = Number(m[3]);
+        const hh = m[4] != null ? m[4] : "00";
+        const mi = m[5] != null ? m[5] : "00";
+        const yy = String(y % 100).padStart(2, "0");
+        return `Last update ${mo}/${day}/${yy} at ${hh}:${mi}`;
       }
-      return new Date(s);
-    }
-
-    function formatDeployedAtLabel(raw) {
-      const d = parseDeployedAt(raw);
-      if (!d || isNaN(d.getTime())) return null;
-      const mm = d.getMonth() + 1;
-      const dd = d.getDate();
-      const yy = String(d.getFullYear() % 100).padStart(2, "0");
-      const hh = String(d.getHours()).padStart(2, "0");
-      const min = String(d.getMinutes()).padStart(2, "0");
+      const d = new Date(s);
+      if (isNaN(d.getTime())) return null;
+      const mm = d.getUTCMonth() + 1;
+      const dd = d.getUTCDate();
+      const yy = String(d.getUTCFullYear() % 100).padStart(2, "0");
+      const hh = String(d.getUTCHours()).padStart(2, "0");
+      const min = String(d.getUTCMinutes()).padStart(2, "0");
       return `Last update ${mm}/${dd}/${yy} at ${hh}:${min}`;
     }
 

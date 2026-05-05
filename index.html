@@ -3523,10 +3523,20 @@
     const replaceInput = document.getElementById("replaceInput");
     const updateLastDeployed = document.getElementById("updateLastDeployed");
 
+    /** Label from a Date (uses local timezone — matches wall clock when deploy happened). */
+    function formatLastUpdateFromInstant(d) {
+      if (!d || isNaN(d.getTime())) return null;
+      const mm = d.getMonth() + 1;
+      const dd = d.getDate();
+      const yy = String(d.getFullYear() % 100).padStart(2, "0");
+      const hh = String(d.getHours()).padStart(2, "0");
+      const min = String(d.getMinutes()).padStart(2, "0");
+      return `Last update ${mm}/${dd}/${yy} at ${hh}:${min}`;
+    }
+
     /**
-     * Show the exact date/time digits from version.json (no timezone conversion).
-     * ISO strings: uses the calendar + clock portion as written before Z/offset.
-     * Unix ms: formats that instant in UTC so it stays stable everywhere.
+     * Fallback: show exact digits from version.json deployedAt (no TZ shift).
+     * ISO strings: calendar + clock as written before Z/offset.
      */
     function formatDeployedAtLabel(raw) {
       if (raw == null) return null;
@@ -3564,6 +3574,20 @@
       return `Last update ${mm}/${dd}/${yy} at ${hh}:${min}`;
     }
 
+    async function fetchLastModifiedLabel(relPath) {
+      const url = new URL(relPath, window.location.href);
+      url.searchParams.set("_lm", String(Date.now()));
+      try {
+        const res = await fetch(url.toString(), { method: "HEAD", cache: "no-store" });
+        if (!res.ok) return null;
+        const lm = res.headers.get("Last-Modified");
+        if (!lm) return null;
+        return formatLastUpdateFromInstant(new Date(lm));
+      } catch {
+        return null;
+      }
+    }
+
     async function refreshUpdateDeployedLabel() {
       if (!updateLastDeployed) return;
       try {
@@ -3571,8 +3595,17 @@
         url.searchParams.set("_", String(Date.now()));
         const res = await fetch(url.toString(), { cache: "no-store" });
         if (!res.ok) throw new Error("not ok");
+        // Real deploy time: GitHub Pages sends Last-Modified on static files.
+        let label = null;
+        const lm = res.headers.get("Last-Modified");
+        if (lm) label = formatLastUpdateFromInstant(new Date(lm));
+        if (!label) label = await fetchLastModifiedLabel("index.html");
+        if (label) {
+          updateLastDeployed.textContent = label;
+          return;
+        }
         const data = await res.json();
-        const label = formatDeployedAtLabel(data.deployedAt);
+        label = formatDeployedAtLabel(data.deployedAt);
         updateLastDeployed.textContent = label || "Last update —";
       } catch {
         updateLastDeployed.textContent = "Last update —";

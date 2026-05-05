@@ -974,6 +974,10 @@
     }
 
     /* ===== Update App button (fixed bottom-center) ===== */
+    .update-app-bar {
+      display: contents;
+    }
+
     .update-app-btn {
       position: fixed;
       bottom: 14px;
@@ -997,11 +1001,24 @@
       transition: background 0.15s, color 0.15s, box-shadow 0.15s, transform 0.05s;
     }
 
+    .update-app-label-short {
+      display: none;
+    }
+
     .update-app-btn::before {
       content: "↻";
       font-size: 1.05rem;
       font-weight: 800;
       line-height: 1;
+    }
+
+    .update-last-deployed {
+      margin: -6px 0 0;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--ink-soft);
+      text-align: center;
+      line-height: 1.35;
     }
 
     .update-app-btn:hover {
@@ -1745,18 +1762,39 @@
         font-size: 0.65rem;
       }
 
+      .update-app-bar {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        flex-shrink: 0;
+        margin-top: 10px;
+      }
+
       .update-app-btn {
         position: static;
-        display: flex;
-        align-self: center;
-        margin: 14px auto 0;
-        margin-inline: auto;
-        padding: 12px 22px;
-        font-size: 0.88rem;
-        width: min(100%, 320px);
-        max-width: 100%;
+        display: inline-flex;
+        margin: 0;
+        padding: 8px 14px;
+        font-size: 0.74rem;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+        width: auto;
+        max-width: none;
         justify-content: center;
         box-sizing: border-box;
+      }
+
+      .update-app-btn::before {
+        font-size: 0.88rem;
+      }
+
+      .update-app-label-full {
+        display: none;
+      }
+
+      .update-app-label-short {
+        display: inline;
       }
 
       /* Base rule uses translateX(-50%) for fixed + left:50%; that mis-centers when static */
@@ -2044,7 +2082,12 @@
     Ready<span class="blink">_</span>
   </div>
 
-  <button class="update-app-btn" id="updateAppBtn" type="button">Update App</button>
+  <div class="update-app-bar">
+    <button class="update-app-btn" id="updateAppBtn" type="button">
+      <span class="update-app-label-full">Update App</span>
+      <span class="update-app-label-short">Update</span>
+    </button>
+  </div>
 
   <input type="file" id="replaceInput" accept=".json,application/json" hidden>
 
@@ -2060,6 +2103,7 @@
           <button class="modal-btn modal-btn-replace" id="updateReplaceBtn" type="button">Replace</button>
         </div>
         <button class="modal-btn modal-btn-refresh" id="updateRefreshBtn" type="button">Refresh for latest version</button>
+        <p class="update-last-deployed" id="updateLastDeployed" aria-live="polite">Last update —</p>
         <div class="modal-info">
           Removing this app from the home screen or clearing site data can delete everything stored here. <b>Save data</b> downloads one JSON file (to Files or Downloads). <b>Replace</b> picks that file and overwrites this device&mdash;back up first if you might need your current data. <b>Refresh for latest version</b> re-downloads app files from the internet; your tallies and session history stay on this device.
         </div>
@@ -3472,12 +3516,40 @@
     const updateReplaceBtn = document.getElementById("updateReplaceBtn");
     const updateRefreshBtn = document.getElementById("updateRefreshBtn");
     const replaceInput = document.getElementById("replaceInput");
+    const updateLastDeployed = document.getElementById("updateLastDeployed");
+
+    function formatDeployedAtLabel(iso) {
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return null;
+      const mm = d.getMonth() + 1;
+      const dd = d.getDate();
+      const yy = String(d.getFullYear() % 100).padStart(2, "0");
+      const hh = String(d.getHours()).padStart(2, "0");
+      const min = String(d.getMinutes()).padStart(2, "0");
+      return `Last update ${mm}/${dd}/${yy} at ${hh}:${min}`;
+    }
+
+    async function refreshUpdateDeployedLabel() {
+      if (!updateLastDeployed) return;
+      try {
+        const url = new URL("version.json", window.location.href);
+        url.searchParams.set("_", String(Date.now()));
+        const res = await fetch(url.toString(), { cache: "no-store" });
+        if (!res.ok) throw new Error("not ok");
+        const data = await res.json();
+        const label = formatDeployedAtLabel(data.deployedAt);
+        updateLastDeployed.textContent = label || "Last update —";
+      } catch {
+        updateLastDeployed.textContent = "Last update —";
+      }
+    }
 
     function openUpdateModal() {
       updateModal.hidden = false;
       // next frame so the transition can play
       requestAnimationFrame(() => updateModal.classList.add("open"));
       document.body.style.overflow = "hidden";
+      refreshUpdateDeployedLabel();
     }
 
     function closeUpdateModal() {
@@ -3584,6 +3656,7 @@
     applyTrackerToUI();
     renderTimer();
     renderAnalytics();
+    refreshUpdateDeployedLabel();
 
     // ==========================================================
     // PWA: register the service worker so the app installs and
